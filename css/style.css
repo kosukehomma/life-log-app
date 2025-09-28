@@ -14,6 +14,16 @@
 	position: fixed;
 	top: 0;
 	left: 0;
+	a {
+		text-decoration: none;
+		&:link,
+		&:visited {
+			color: var(--header-font-color);
+		}
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 .header-title {
 	font-weight: bold;
