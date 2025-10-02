@@ -14,6 +14,8 @@
 	position: fixed;
 	top: 0;
 	left: 0;
+	height: 100vh;
+	overflow-y: auto;
 	a {
 		text-decoration: none;
 		&:link,
@@ -40,17 +42,40 @@
 	font-weight: 700;
 	li {
 		margin-top: 12px;
+		cursor: pointer;
 		&:first-child {
 			margin-top: 0;
 		}
+		&.is-open {
+			> .log-list__month {
+				max-height: 500px;
+			}
+		}
 	}
+}
+.year-toggle {
+  cursor: pointer;
+  display: inline-block;
+  padding: 4px;
+  font-weight: bold;
 }
 .log-list__month {
 	font-size: 16px;
 	margin-left: 2em;
 	margin-top: 8px;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.2s ease;
 	li {
 		margin-top: 8px;
+		a {
+			&.is-active {
+				font-weight: bold;
+				font-size: 18px;
+				color: #55ebbb;
+				text-decoration: underline;
+			}
+		}
 	}
 }
 
@@ -59,8 +84,12 @@ main {
 }
 
 .container {
-	margin: 108px 0 48px 108px;
+	margin: 64px 0 48px 64px;
 	max-width: 1136px;
+}
+.date-title {
+	font-size: 28px;
+	margin-bottom: 1em;
 }
 /* card */
 .card-list {
