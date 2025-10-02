@@ -73,30 +73,30 @@ const initArchiveMenu = () => {
 
         // 開いた年を保存
         localStorage.setItem('activeYear', toggle.textContent);
-			} else {
-				localStorage.removeItem('activeYear');
-			}
-		});
+      } else {
+        localStorage.removeItem('activeYear');
+      }
+    });
   });
 };
 
 const highlightActiveLink = () => {
-	const { year, month } = getQuery();
-	const links = document.querySelectorAll('.log-list__month a');
+  const { year, month } = getQuery();
+  const links = document.querySelectorAll('.log-list__month a');
 
-	links.forEach(link => {
-		const url = new URL(link.href);
-		const linkYear = url.searchParams.get('year');
-		const linkMonth = url.searchParams.get('month');
+  links.forEach(link => {
+    const url = new URL(link.href);
+    const linkYear = url.searchParams.get('year');
+    const linkMonth = url.searchParams.get('month');
 
-		if (linkYear === year && linkMonth === month) {
-			link.classList.add('is-active');
-		}
-	});
+    if (linkYear === year && linkMonth === month) {
+      link.classList.add('is-active');
+    }
+  });
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-	buildLogMenu();
-	initArchiveMenu();
-	highlightActiveLink();
+  buildLogMenu();
+  initArchiveMenu();
+  highlightActiveLink();
 });

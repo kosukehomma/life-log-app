@@ -1,100 +1,100 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>LIFE LOG</title>
-	<meta name="description" content="体重・運動・食事・コメントを記録できる生活ログアプリ（学習用）" />
-	<link rel="stylesheet" href="./css/reset.css" type="text/css" />
-	<link rel="stylesheet" href="./css/style.css" type="text/css" />
-	<link rel="icon" href="./assets//image/favicon.png" type="image/png" />
-	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LIFE LOG</title>
+  <meta name="description" content="体重・運動・食事・コメントを記録できる生活ログアプリ（学習用）" />
+  <link rel="stylesheet" href="./css/reset.css" type="text/css" />
+  <link rel="stylesheet" href="./css/style.css" type="text/css" />
+  <link rel="icon" href="./assets//image/favicon.png" type="image/png" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-	<header class="header">
-		<h1 class="header-title"><a href="./index.html">LIFE LOG</a></h1>
-		<nav class="log-list">
-			<ul class="log-list__year">
-			</ul>
-		</nav>
-	</header>
-	<main>
-		<div class="container">
-			<section class="form">
-				<form id="log-item" action="#" method="post">
-					<table class="form-table">
-						<tr>
-							<th>
-								日付
-							</th>
-							<td>
-								<input type="date" name="date" />
-							</td>
-						</tr>
-						<tr>
-							<th>
-								体重
-							</th>
-							<td>
-								<input type="number" name="weight" />kg
-							</td>
-						</tr>
-						<tr>
-							<th>
-								運動
-							</th>
-							<td>
-								<textarea name="work" cols="50" rows="6"></textarea>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								食事
-							</th>
-							<td>
-								<div class="form-table__meal">
-									<label class="form-table__photo">
-										<input type="file" id="breakfast" name="breakfast" accept="image/*" />
-										<img src="./assets/image/no-image.png" alt="preview" />
-										<p>
-											朝食
-											<button type="button" class="delete-button">削除</button>
-										</p>
-									</label>
-									<label class="form-table__photo">
-										<input type="file" id="lunch" name="lunch" accept="image/*" />
-										<img src="./assets/image/no-image.png" alt="preview" />
-										<p>
-											昼食
-											<button type="button" class="delete-button">削除</button>
-										</p>
-									</label>
-									<label class="form-table__photo">
-										<input type="file" id="dinner" name="dinner" accept="image/*" />
-										<img src="./assets/image/no-image.png" alt="preview" />
-										<p>
-											夕食
-											<button type="button" class="delete-button">削除</button>
-										</p>
-									</label>
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								コメント
-							</th>
-							<td>
-								<textarea name="comment" cols="80" rows="8"></textarea>
-							</td>
-						</tr>
-					</table>
-					<button type="button" class="form-submit" onclick="location.href='./index.html'">保存</button>
-				</form>
-			</section>
-		</div>
-	</main>
-	<script src="./js/form.js"></script>
-	<script src="./js/archive.js"></script>
+  <header class="header">
+    <h1 class="header-title"><a href="./index.html">LIFE LOG</a></h1>
+    <nav class="log-list">
+      <ul class="log-list__year">
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <div class="container">
+      <section class="form">
+        <form id="log-item" action="#" method="post">
+          <table class="form-table">
+            <tr>
+              <th>
+                日付
+              </th>
+              <td>
+                <input type="date" name="date" />
+              </td>
+            </tr>
+            <tr>
+              <th>
+                体重
+              </th>
+              <td>
+                <input type="number" name="weight" />kg
+              </td>
+            </tr>
+            <tr>
+              <th>
+                運動
+              </th>
+              <td>
+                <textarea name="work" cols="50" rows="6"></textarea>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                食事
+              </th>
+              <td>
+                <div class="form-table__meal">
+                  <label class="form-table__photo">
+                    <input type="file" id="breakfast" name="breakfast" accept="image/*" />
+                    <img src="./assets/image/no-image.png" alt="preview" />
+                    <p>
+                      朝食
+                      <button type="button" class="delete-button">削除</button>
+                    </p>
+                  </label>
+                  <label class="form-table__photo">
+                    <input type="file" id="lunch" name="lunch" accept="image/*" />
+                    <img src="./assets/image/no-image.png" alt="preview" />
+                    <p>
+                      昼食
+                      <button type="button" class="delete-button">削除</button>
+                    </p>
+                  </label>
+                  <label class="form-table__photo">
+                    <input type="file" id="dinner" name="dinner" accept="image/*" />
+                    <img src="./assets/image/no-image.png" alt="preview" />
+                    <p>
+                      夕食
+                      <button type="button" class="delete-button">削除</button>
+                    </p>
+                  </label>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                コメント
+              </th>
+              <td>
+                <textarea name="comment" cols="80" rows="8"></textarea>
+              </td>
+            </tr>
+          </table>
+          <button type="button" class="form-submit" onclick="location.href='./index.html'">保存</button>
+        </form>
+      </section>
+    </div>
+  </main>
+  <script src="./js/form.js"></script>
+  <script src="./js/archive.js"></script>
 </body>
 </html>
