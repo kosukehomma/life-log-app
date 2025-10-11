@@ -1,26 +1,5 @@
 'use strict'
 
-window.getQuery = () => {
-  const params = new URLSearchParams(window.location.search);
-  return {
-    year: params.get('year'),
-    month: params.get('month')?.padStart(2, '0'),
-  };
-};
-
-const setDateTitle = () => {
-  const titleEl = document.getElementById('date-title');
-  const params = new URLSearchParams(window.location.search);
-  const year = params.get('year');
-  const month = params.get('month');
-
-  if (year && month) {
-    titleEl.textContent = `${year}年${parseInt(month, 10)}月分`;
-  } else {
-    titleEl.textContent = '最新の7日間';
-  }
-};
-
 const cardListLineUp = () => {
   const list = document.getElementById('card-list');
   const logs = JSON.parse(localStorage.getItem('logs')) || [];
@@ -28,41 +7,49 @@ const cardListLineUp = () => {
 
   list.innerHTML = '';
 
-  // 日付で降順ソート
-  logs.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  // フィルタリング
-  let filtered = logs;
-  if (year && month) {
-    filtered = logs.filter(log => {
-      if (!log.date) return false;
+  // --- フィルタ ---
+  let filtered = logs.filter(log => log.date);
+  if (year || month) {
+    filtered = filtered.filter(log => {
       const [y, m] = log.date.split('-');
-      return y === year && m === month;
+      if (year && y !== year) return false;
+      if (month && m !== month) return false;
+      return true;
     });
-  } else {
-    // クエリなし　最新7件だけ
-    filtered = logs.slice(0, 7);
   }
-  console.log("filtered:", filtered);
-  filtered.forEach(log => { console.log("log1件:", log) })
 
-  if (filtered.length === 0) {
+  // --- 日付降順ソート ---
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const displayLogs = (!year && !month) ? filtered.slice(0, 7) : filtered;
+
+  // 見出しh2追加
+  const main = document.querySelector('main .container');
+  const oldHeading =document.querySelector('.log-heading');
+  if (oldHeading) oldHeading.remove();
+
+  const heading = document.createElement('h2');
+  heading.classList.add('log-heading');
+  heading.textContent = year && month
+    ? `${year}年${Number(month)}月の記録`
+    : '最新の7日間';
+  main.insertBefore(heading, main.firstChild);
+
+  if (displayLogs.length === 0) {
     const emptyLi = document.createElement('li');
     emptyLi.innerHTML = '<p>まだ記録がありません</p>';
     list.appendChild(emptyLi);
   } else {
-    filtered.forEach(log => {
+    displayLogs.forEach(log => {
       const li = document.createElement('li');
       li.classList.add('card-list__item');
-
-      const safe = (value) => value ? value : '';
 
       li.innerHTML = `
         <p class="item-date">${log.date}</p>
         <span class="item-weight">${log.weight}kg</span>
 
         <p class="item-work__title">運動内容：</p>
-        <div class="item-work__detail">${log.work}</div>
+        <div class="item-work__detail">${makeWorkTags(log.work)}</div>
 
         <p class="item-meal">食事：</p>
         <div class="item-meal__wrap">
@@ -73,7 +60,9 @@ const cardListLineUp = () => {
           </ul>
         </div>
 
-        <div class="item-comment">${log.comment}</div>
+        <div class="item-comment ${log.comment === 'コメント未入力' ? 'is-empty' : ''}">
+          ${log.comment}
+        </div>
       `;
 
       list.appendChild(li);
@@ -91,7 +80,9 @@ const cardListLineUp = () => {
   list.appendChild(addLi);
 };
 
+/*
+* DOM Ready
+*/
 document.addEventListener('DOMContentLoaded', () => {
-  setDateTitle();
   cardListLineUp();
 });

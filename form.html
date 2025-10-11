@@ -44,7 +44,8 @@
                 運動
               </th>
               <td>
-                <textarea name="work" cols="50" rows="6"></textarea>
+                <textarea name="work" id="work-input" cols="40" rows="4"></textarea>
+                <div class="work-preview" id="work-preview"></div>
               </td>
             </tr>
             <tr>
@@ -85,15 +86,20 @@
                 コメント
               </th>
               <td>
-                <textarea name="comment" cols="80" rows="8"></textarea>
+                <textarea id="comment" name="comment" cols="70" rows="5" maxlength="128" placeholder="コメントを入力（最大128文字）"></textarea>
+                <p class="char-count">
+                  <span id="comment-count">0 / 128</span> 
+                  <span class="char-error" id="comment-error" aria-live="polite"></span>
+                </p>
               </td>
             </tr>
           </table>
-          <button type="button" class="form-submit" onclick="location.href='./index.html'">保存</button>
+          <button type="button" class="form-submit" >保存</button>
         </form>
       </section>
     </div>
   </main>
+  <script src="./js/utils.js"></script>
   <script src="./js/form.js"></script>
   <script src="./js/archive.js"></script>
 </body>
