@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LIFE LOG</title>
+  <meta name="description" content="体重・運動・食事・コメントを記録できる生活ログアプリ（学習用）" />
+  <link rel="stylesheet" href="/src/reset.css" type="text/css" />
+  <link rel="stylesheet" href="/src/style.css" type="text/css" />
+  <link rel="icon" href="./assets//image/favicon.png" type="image/png" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="max-w-56 w-full bg-primary text-white px-6 h-screen fixed top-0 left-0 overflow-y-auto">
+    <h1 class="font-bold text-4xl py-12"><a href="./index.html" class="no-underline text-white visited:text-white hover:underline">LIFE LOG</a></h1>
+    <nav class="log-list w-full overflow-y-auto pb-6">
+      <ul class="log-list__year text-xl font-bold">
+      </ul>
+    </nav>
+  </header>
+  <main class="ml-56">
+    <div class="container mt-16 mr-0 mb-12 ml-16">
+      <section class="form max-w-[800px]">
+        <form id="log-item" action="#" method="post">
+          <table class="form-table w-full">
+            <tr class="border-b-[1px]">
+              <th class="align-top text-left py-3 px-1 w-[13%] min-w-[100px] text-lg">
+                日付
+              </th>
+              <td class="align-top py-3 px-0.5">
+                <input type="date" name="date" class="p-1 border rounded-md border-primary" />
+              </td>
+            </tr>
+            <tr class="border-b-[1px] border-slate-400">
+              <th class="align-top text-left py-3 px-1 w-[13%] min-w-[100px] text-lg">
+                体重
+              </th>
+              <td class="align-top py-3 px-0.5">
+                <input type="number" name="weight" class="p-1 border rounded-md border-primary" />kg
+              </td>
+            </tr>
+            <tr class="border-b-[1px] border-slate-400">
+              <th class="align-top text-left py-3 px-1 w-[13%] min-w-[100px] text-lg">
+                運動
+              </th>
+              <td class="align-top py-3 px-0.5">
+                <textarea name="work" id="work-input" cols="40" rows="4" class="p-1 border rounded-md border-primary"></textarea>
+                <div class="work-preview mt-2 flex flex-wrap gap-1" id="work-preview"></div>
+              </td>
+            </tr>
+            <tr class="border-b-[1px] border-slate-400">
+              <th class="align-top text-left py-3 px-1 w-[13%] min-w-[100px] text-lg">
+                食事
+              </th>
+              <td class="align-top py-3 px-0.5">
+                <div class="form-table__meal flex gap-3">
+                  <label class="form-table__photo block cursor-pointer">
+                    <input type="file" id="breakfast" name="breakfast" accept="image/*" class="hidden" />
+                    <img src="/src/assets/image/no-image.png" alt="preview" class="w-[200px] h-[160px] object-cover object-center border-[1px] border-[#cccccc]" />
+                    <p class="flex justify-between items-center mt-0.5">
+                      朝食
+                      <button type="button" class="delete-button rounded-md py-0.5 px-1.5 bg-gray-100 border border-b-[#3c4b5d] border-b-4  [&:active]:mt-1 [&:active]:border-b-[#3c4b5d] [&:active]:border-b-2">削除</button>
+                    </p>
+                  </label>
+                  <label class="form-table__photo block cursor-pointer">
+                    <input type="file" id="lunch" name="lunch" accept="image/*" class="hidden" />
+                    <img src="/src/assets/image/no-image.png" alt="preview" class="w-[200px] h-[160px] object-cover object-center border-[1px] border-[#cccccc]" />
+                    <p class="flex justify-between items-center mt-0.5">
+                      昼食
+                      <button type="button" class="delete-button rounded-md py-0.5 px-1.5 bg-gray-100 border border-b-[#3c4b5d] border-b-4  [&:active]:mt-1 [&:active]:border-b-[#3c4b5d] [&:active]:border-b-2">削除</button>
+                    </p>
+                  </label>
+                  <label class="form-table__photo block cursor-pointer">
+                    <input type="file" id="dinner" name="dinner" accept="image/*" class="hidden" />
+                    <img src="/src/assets/image/no-image.png" alt="preview" class="w-[200px] h-[160px] object-cover object-center border-[1px] border-[#cccccc]" />
+                    <p class="flex justify-between items-center mt-0.5">
+                      夕食
+                      <button type="button" class="delete-button rounded-md py-0.5 px-1.5 bg-gray-100 border border-b-[#3c4b5d] border-b-4  [&:active]:mt-1 [&:active]:border-b-[#3c4b5d] [&:active]:border-b-2">削除</button>
+                    </p>
+                  </label>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th class="align-top text-left py-3 px-1 w-[13%] min-w-[100px] text-lg">
+                コメント
+              </th>
+              <td class="align-top py-3 px-0.5">
+                <textarea id="comment" name="comment" cols="70" rows="5" maxlength="128" placeholder="コメントを入力（最大128文字）" class="p-1 border rounded-md border-primary"></textarea>
+                <p class="char-count text-[13px] text-[#666] text-left mt-1 [&.over]:text-red-600">
+                  <span id="comment-count">0 / 128</span> 
+                  <span class="char-error text-red-600 inline-block my-1 ml-1.5" id="comment-error" aria-live="polite"></span>
+                </p>
+              </td>
+            </tr>
+          </table>
+          <button type="button" class="form-submit text-white bg-[#6a97cb] py-1.5 px-3.5 rounded-md border-b-[#3c4b5d] border-b-4 mt-6 mx-auto mb-0 block [:hover]:bg-[#516984] [:active]:mt-6 [:active]:mx-auto [:active]:mb-0 [:active]:border-b-2 [:active]:border-b-[#3c4b5d]" >保存</button>
+        </form>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="/src/utils.ts"></script>
+  <script type="module" src="/src/form.ts"></script>
+  <script type="module" src="/src/archive.ts"></script>
+</body>
+</html>

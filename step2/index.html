@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LIFE LOG</title>
+  <meta name="description" content="体重・運動・食事・コメントを記録できる生活ログアプリ（学習用）" />
+  <link rel="stylesheet" href="/src/reset.css" type="text/css" />
+  <link rel="stylesheet" href="/src/style.css" type="text/css" />
+  <link rel="icon" href="/src/assets//image/favicon.png" type="image/png" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="max-w-56 w-full bg-primary text-white px-6 h-screen fixed top-0 left-0 overflow-y-auto">
+    <h1 class="font-bold text-4xl py-12"><a href="./index.html" class="no-underline text-white visited:text-white hover:underline">LIFE LOG</a></h1>
+    <nav class="log-list w-full overflow-y-auto pb-6">
+      <ul class="log-list__year text-xl font-bold">
+      </ul>
+    </nav>
+  </header>
+  <main class="ml-56">
+    <div class="container mt-16 mr-0 mb-12 ml-16">
+      <h2 id="date-title" class="date-title mb-4 text-[28px]"></h2>
+      <section class="card-wrap">
+        <ul class="card-list flex flex-wrap gap-4" id="card-list"></ul>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="/src/utils.ts"></script>
+  <script type="module" src="/src/main.ts"></script>
+  <script type="module" src="/src/archive.ts"></script>
+</body>
+</html>

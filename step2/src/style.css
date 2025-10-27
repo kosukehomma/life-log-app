@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #6A97CB;
+  --color-base: #020202;
+  --font-sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Meiryo", "Verdana", sans-serif;
+  --font-gothic: "Noto Sans JP", sans-serif;
+}
+
+@layer base {
+  .log-list__year > li {
+    @apply mt-3 cursor-pointer first:mt-0;
+  }
+
+  .log-list__month {
+    @apply text-[16px] ml-8 mt-2 max-h-0 overflow-hidden transition-[max-height] duration-200 ease-in-out;
+  }
+
+  .log-list__year > li.is-open > .log-list__month {
+    @apply max-h-[500px];
+  }
+
+  .log-list__month a {
+    @apply block text-white/80 hover:text-white transition-colors;
+  }
+
+  .log-list__month a.is-active {
+    @apply font-bold text-[18px] text-[#55ebbb] underline;
+  }
+}
+
+@layer utilities {
+  .work-tag.-aerobic {
+    @apply bg-[#27a5a7];
+  }
+  .work-tag.-muscle {
+    @apply bg-[#e38e60];
+  }
+  .work-tag.-boxing {
+    @apply bg-[#75a0dc];
+  }
+  .work-tag.-stretch {
+    @apply bg-[#9a5dc6];
+  }
+  .work-tag.-other {
+    @apply bg-[#888];
+  }
+}
+
+html {
+  @apply text-base font-sans;
+}
+header, footer, nav, menu, article, aside, section, details, figcaption, figure{
+  @apply block;
+}
+ul, ol {
+  @apply list-none;
+}
+table {
+  @apply border-collapse;
+}
+img {
+  @apply align-bottom;
+}
+a img {
+  @apply border-none;
+}
