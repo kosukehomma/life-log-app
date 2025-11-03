@@ -1,34 +1,51 @@
 'use strict'
 
-const buildLogMenu = () => {
-  const logs = JSON.parse(localStorage.getItem('logs')) || [];
-  const archive = {};
+import { getQuery } from './utils';
 
-  logs.forEach(log => {
+interface LogData {
+  date: string;
+  weight: number;
+  work: string;
+  breakfast: string;
+  lunch: string;
+  dinner: string;
+  comment: string;
+}
+
+interface Archive {
+  [year: string]: {
+    [month: string]: boolean;
+  };
+}
+
+const buildLogMenu = (): void => {
+  const logs: LogData[] = JSON.parse(localStorage.getItem('logs') ?? '[]');
+  const archive: Archive = {};
+
+  logs.forEach((log: LogData) => {
     if (!log.date) return;
     const [year, month] = log.date.split('-');
     if (!archive[year]) archive[year] = {};
     archive[year][month] = true;
   });
 
-  const nav = document.querySelector('.log-list__year');
+  const nav = document.querySelector('.log-list__year') as HTMLElement | null;
   if (!nav) return;
   nav.innerHTML = '';
 
-  Object.keys(archive).sort((a, b) => b - a).forEach(year => {
+  Object.keys(archive).sort((a, b) => Number(b) - Number(a)).forEach(year => {
     const li = document.createElement('li');
     li.className = "mt-3 first:mt-0 cursor-pointer group";
-    // ✅ 最初から span を作る
+    // 最初から span を作る
     const span = document.createElement('span');
     span.className = "year-toggle inline-block py-2 font-bold"
     span.textContent = `${year}年`;
     li.appendChild(span);
 
     const ulMonth = document.createElement('ul');
-    ulMonth.classList.add('log-list__month');
     ulMonth.className = "log-list__month max-h-0 mt-2 ml-8 overflow-hidden transition-all duration-300 group-[.is-open]:max-h-[500px]";
 
-    Object.keys(archive[year]).sort((a, b) => b - a).forEach(month => {
+    Object.keys(archive[year]).sort((a, b) => Number(b) - Number(a)).forEach(month => {
       const monthLi = document.createElement('li');
       monthLi.className = "mt-2"
       const link = document.createElement('a');
@@ -45,12 +62,12 @@ const buildLogMenu = () => {
   });
 };
 
-const initArchiveMenu = () => {
+const initArchiveMenu = (): void => {
   const yearLis = document.querySelectorAll('.log-list__year > li');
 
   yearLis.forEach(yearLi => {
-    const months = yearLi.querySelector('.log-list__month');
-    const toggle = yearLi.querySelector('.year-toggle');
+    const months = yearLi.querySelector('.log-list__month') as HTMLElement | null;
+    const toggle = yearLi.querySelector('.year-toggle') as HTMLElement | null;
     if (!months || !toggle) return;
 
     // localStorageに保存されている年を確認
@@ -67,8 +84,8 @@ const initArchiveMenu = () => {
       // いったん全部閉じる
       yearLis.forEach(li => {
         li.classList.remove('is-open');
-        const m = li.querySelector('.log-list__month');
-        if (m) m.style.maxHeight = null;
+        const m = li.querySelector('.log-list__month') as HTMLElement | null;
+        if (m) m.style.maxHeight = "";
       });
 
       // 自分だけ開く
@@ -90,12 +107,13 @@ const highlightActiveLink = () => {
   const links = document.querySelectorAll('.log-list__month a');
 
   links.forEach(link => {
-    const url = new URL(link.href);
+    const a = link as HTMLAnchorElement;
+    const url = new URL(a.href);
     const linkYear = url.searchParams.get('year');
     const linkMonth = url.searchParams.get('month');
 
     if (linkYear === year && linkMonth === month) {
-      link.classList.add('is-active');
+      a.classList.add('is-active');
     }
   });
 };

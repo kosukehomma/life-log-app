@@ -1,12 +1,30 @@
 'use strict'
 
+import { makeWorkTags } from './utils';
+
+type Log = {
+  id: number;
+  date: string;
+  weight: string;
+  work: string;
+  comment: string;
+  breakfast: string;
+  lunch: string;
+  dinner: string;
+};
+
 // 画像をリサイズ（安全版）
-const resizeImage = (file, maxWidth = 640, quality = 0.4) => {
+const resizeImage = (file: File | null, maxWidth = 640, quality = 0.4): Promise<string | null> => {
   return new Promise((resolve, reject) => {
     if (!file) return resolve(null);
 
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const result = e.target?.result;
+      if (!result || typeof result !== "string") {
+        return reject(new Error("画像データの読み込みに失敗しました"));
+      }
+
       const img = new Image();
       img.onload = () => {
         try {
@@ -15,33 +33,34 @@ const resizeImage = (file, maxWidth = 640, quality = 0.4) => {
           canvas.width = img.width * scale;
           canvas.height = img.height * scale;
           const ctx = canvas.getContext('2d');
+          if (!ctx) return reject(new Error("2D contextを取得できませんでした"));
+
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
           const base64 = canvas.toDataURL(file.type || 'image/jpeg', quality);
-
-          console.log('✅ resizeImage 完了:', base64.slice(0, 50)); // デバッグ確認
           resolve(base64);
         } catch (err) {
           reject(err);
         }
       };
-      img.onerror = err => {
-        reject('画像の読み込みに失敗しました: ' + err.message);
+      img.onerror = () => {
+        reject(new Error ('画像の読み込みに失敗しました'));
       };
-      img.src = e.target.result;
+      img.src = result;
     };
-    reader.onerror = err => reject('FileReaderエラー: ' + err.message);
+    reader.onerror = () => reject(new Error('FileReaderエラー'));
     reader.readAsDataURL(file);
   });
 };
 
 const addLog = () => {
-  const form = document.getElementById('log-item');
-  const saveBtn = document.querySelector('.form-submit');
-  const NO_IMAGE = './assets/image/no-image.png';
-  const comment = form.comment;
-  const count = document.getElementById('comment-count');
-  const error = document.getElementById('comment-error');
+  const form = document.getElementById('log-item') as HTMLFormElement;
+  const saveBtn = document.querySelector('.form-submit') as HTMLButtonElement;
+  const NO_IMAGE = '/src/assets/image/no-image.png';
+  const comment = form.querySelector('#comment') as HTMLTextAreaElement;
+  if (!comment) throw new Error('コメント欄が見つかりません');
+  const count = document.getElementById('comment-count') as HTMLSpanElement;
+  const error = document.getElementById('comment-error') as HTMLSpanElement;
 
   const MAX_LENGTH = 128;
 
@@ -61,38 +80,43 @@ const addLog = () => {
   saveBtn.addEventListener('click', async e => {
     e.preventDefault();
 
-    const breakfastInput = form.breakfast.files[0];
-    const lunchInput = form.lunch.files[0];
-    const dinnerInput = form.dinner.files[0];
+    const dateInput = form.querySelector('#date') as HTMLInputElement;
+    const weightInput = form.querySelector('#weight') as HTMLInputElement;
+    const workInput = form.querySelector('#work-input') as HTMLInputElement;
+    const breakfastInput = form.querySelector('#breakfast') as HTMLInputElement | null;
+    const lunchInput = form.querySelector('#lunch') as HTMLInputElement | null;
+    const dinnerInput = form.querySelector('#dinner') as HTMLInputElement | null;
+
+    const breakfastFile = breakfastInput?.files?.[0] ?? null;
+    const lunchFile = lunchInput?.files?.[0] ?? null;
+    const dinnerFile = dinnerInput?.files?.[0] ?? null;
 
     try {
-      const settledResults = await Promise.allSettled([
-        breakfastInput ? resizeImage(breakfastInput) : Promise.resolve(null),
-        lunchInput ? resizeImage(lunchInput) : Promise.resolve(null),
-        dinnerInput ? resizeImage(dinnerInput) : Promise.resolve(null)
+      const settledResults = await Promise.allSettled<string | null>([
+        breakfastFile ? resizeImage(breakfastFile) : Promise.resolve(null),
+        lunchFile ? resizeImage(lunchFile) : Promise.resolve(null),
+        dinnerFile ? resizeImage(dinnerFile) : Promise.resolve(null)
       ]);
 
-      console.log("🧩 allSettled結果:", settledResults);
-
       // ✅ 成功したものだけ値を取り出す
-      const [breakfastBase64, lunchBase64, dinnerBase64] = settledResults.map(r => r.value || null);
+      const [breakfastBase64, lunchBase64, dinnerBase64] = settledResults.map(r =>
+        r.status === 'fulfilled' ? r.value : null
+      );
 
       const commentValue = comment.value.trim() === '' ? 'コメント未入力' : comment.value.trim();
 
-      const log = {
+      const log: Log = {
         id: Date.now(),
-        date: form.date.value,
-        weight: form.weight.value,
-        work: form.work.value,
+        date: dateInput.value,
+        weight: weightInput.value,
+        work: workInput.value,
         comment: commentValue,
         breakfast: breakfastBase64 || NO_IMAGE,
         lunch: lunchBase64 || NO_IMAGE,
         dinner: dinnerBase64 || NO_IMAGE
       };
 
-      console.log('保存データ確認：', log);
-
-      const logs = JSON.parse(localStorage.getItem('logs')) || [];
+      const logs: Log[] = JSON.parse(localStorage.getItem('logs') ?? "[]");
 
       // 最大10件だけ保持（古いデータ削除)
       if (logs.length >= 10) logs.pop();
@@ -101,11 +125,11 @@ const addLog = () => {
 
       console.log('✅ LocalStorage 保存完了！', logs);
       console.log('🟡 現在の全ログ', logs);
-      alert("✅ 保存しました！（一時停止中・indexへ遷移しません）");
+      alert("✅ 保存しました！");
 
       // ✅ ほんの少し待ってから遷移（確実に保存反映）
       await new Promise(resolve => setTimeout(resolve, 300));
-      // window.location.href = './index.html';
+      window.location.href = './index.html';
 
     } catch (err) {
       console.error("❌ 画像の保存中にエラーが発生:", err);
@@ -117,20 +141,24 @@ const addLog = () => {
   const photoBlocks = document.querySelectorAll('.form-table__photo');
 
   photoBlocks.forEach(block => {
-    const input = block.querySelector('input[type="file"]');
-    const preview = block.querySelector('img');
-    const deleteBtn = block.querySelector('.delete-button');
+    const input = block.querySelector('input[type="file"]') as HTMLInputElement | null;
+    const preview = block.querySelector('img') as HTMLImageElement | null;
+    const deleteBtn = block.querySelector('.delete-button') as HTMLButtonElement | null;
 
     if (!input || !preview || !deleteBtn) return;
 
     // プレビュー
-    input.addEventListener('change', async e => {
-      const file = e.target.files[0];
+    input.addEventListener('change', async (e: Event) => {
+      const target = e.target as HTMLInputElement | null;
+      if (!target || !target.files || target.files.length === 0) return;
+      const file = target.files[0];
       if (!file) return;
 
       // リサイズしてプレビュー
       const resizedBase64 = await resizeImage(file);
-      preview.src = resizedBase64;
+      if (resizedBase64) {
+        preview.src = resizedBase64;
+      }
     });
 
     // 削除
@@ -141,12 +169,12 @@ const addLog = () => {
   });
 
   // 運動プレビュー（タグ化）
-  const workInput = document.getElementById('work-input');
-  const workPreview = document.getElementById('work-preview');
+  const workInputEl = document.getElementById('work-input') as HTMLInputElement | null;
+  const workPreview = document.getElementById('work-preview') as HTMLElement | null;
 
-  if (workInput && workPreview) {
-    workInput.addEventListener('input', () => {
-      const text = workInput.value;
+  if (workInputEl && workPreview) {
+    workInputEl.addEventListener('input', () => {
+      const text = workInputEl.value;
       workPreview.innerHTML = makeWorkTags(text);
     });
   }

@@ -1,10 +1,23 @@
 'use strict'
 
 import './style.css';
+import { getQuery, makeWorkTags } from "./utils";
 
-const cardListLineUp = () => {
+interface LogData {
+  date: string;
+  weight: number;
+  work: string;
+  breakfast: string;
+  lunch: string;
+  dinner: string;
+  comment: string;
+}
+
+const cardListLineUp = (): void => {
   const list = document.getElementById('card-list');
-  const logs = JSON.parse(localStorage.getItem('logs')) || [];
+  if (!list) return;
+
+  const logs: LogData[] = JSON.parse(localStorage.getItem('logs') ?? '[]');
   const { year, month } = getQuery();
 
   list.innerHTML = '';
@@ -14,19 +27,19 @@ const cardListLineUp = () => {
   if (year || month) {
     filtered = filtered.filter(log => {
       const [y, m] = log.date.split('-');
-      if (year && y !== year) return false;
-      if (month && m !== month) return false;
-      return true;
+      return (!year || y === year) && (!month || m === month);
     });
   }
 
   // --- 日付降順ソート ---
-  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+  filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const displayLogs = (!year && !month) ? filtered.slice(0, 7) : filtered;
+  const displayLogs = !year && !month ? filtered.slice(0, 7) : filtered;
 
   // 見出しh2追加
-  const main = document.querySelector('main .container');
+  const main = document.querySelector('main .container') as HTMLElement | null;
+  if (!main) return;
+
   const oldHeading = document.querySelector('.log-heading');
   if (oldHeading) oldHeading.remove();
 
@@ -45,14 +58,14 @@ const cardListLineUp = () => {
     displayLogs.forEach(log => {
       const li = document.createElement('li');
       li.className = "card-list__item max-w-[calc(25%-12px)] min-w-[193px] border-2 border-primary rounded-[20px] p-[14px_8px] bg-[#f4f7fa] flex flex-col relative min-h-[482px] h-full"
-
+  
       li.innerHTML = `
         <p class="font-bold text-[16px] mb-[10px]">${log.date}</p>
         <span class="font-bold text-[28px] absolute top-[12px] right-[16px]">${log.weight}kg</span>
-
+  
         <p class="font-bold text-[12px] mb-[2px]">運動内容：</p>
         <div class="text-[12px] leading-[1.2] min-h-[100px] mb-[8px]">${makeWorkTags(log.work)}</div>
-
+  
         <p class="font-bold text-[12px] mb-[2px]">食事：</p>
         <div class="max-w-full w-full my-[2px]">
           <ul class="flex gap-[8px] overflow-x-auto scroll-snap-x scroll-snap-mandatory p-0 mx-[12px]">
@@ -67,22 +80,21 @@ const cardListLineUp = () => {
             </li>
           </ul>
         </div>
-
+  
         <div class="item-comment text-[12px] leading-[1.3] mt-[8px] [&.is-empty]:text-gray-500 [&.is-empty]:italic ${log.comment === 'コメント未入力' ? 'is-empty' : ''}">
           ${log.comment}
         </div>
       `;
-
+  
       list.appendChild(li);
     });
   }
-
 
   const addLi = document.createElement('li');
   addLi.className = "card-list__add max-w-[calc(25%-12px)] w-full min-w-[193px] border-4 border-dashed border-primary rounded-[20px] p-[20px_16px] flex flex-col justify-center items-center min-h-[437px] h-full"
   addLi.innerHTML = `
     <button class="card-list__add-button bg-transparent outline-none rounded-full border-none cursor-pointer active:mt-[3px]" onclick="location.href='./form.html'">
-      <img src="/src/assets/image/add_circle.png" alt="add" />
+      <img src="/add_circle.png" alt="add" />
     </button>
   `;
   list.appendChild(addLi);

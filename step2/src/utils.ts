@@ -3,21 +3,20 @@
 /*
 * クエリ取得
 */
-window.getQuery = () => {
+export const getQuery = (): { year: string | null; month: string | null } => {
   const params = new URLSearchParams(window.location.search);
-  return {
-    year: params.get('year'),
-    month: params.get('month')?.padStart(2, '0'),
-  };
+  const year = params.get("year");
+  const month = params.get("month");
+  return { year, month };
 };
 
 /*
 * 運動内容タグ生成
 */
-window.makeWorkTags = (text) => {
+export const makeWorkTags = (text: string): string => {
   if (!text) return '';
 
-  const categories = {
+  const categories: Record<string, string> = {
     'ランニング': 'aerobic',
     'ジョギング': 'aerobic',
     '縄跳び': 'aerobic',
@@ -39,9 +38,9 @@ window.makeWorkTags = (text) => {
   const lines = text.split(/[\n,、]+/).map(line => line.trim()).filter(line => line !== '');
   return lines.map(line => {
     let matchedClass = 'other';
-    Object.keys(categories).forEach(keyword => {
-      if (line.includes(keyword)) matchedClass = categories[keyword];
-    });
-    return `<span class="inline-block m-[2px_6px_2px_0] px-[8px] py-[3px] rounded-[14px] text-[12px] text-white font-medium leading-[1.2] whitespace-nowrap work-tag -${matchedClass}">${line.trim()}</span>`;
+    for (const [keyword, value] of Object.entries(categories)) {
+      if (line.includes(keyword)) matchedClass = value;
+    }
+    return `<span class="inline-block m-[2px_6px_2px_0] px-[8px] py-[3px] rounded-[14px] text-[12px] text-white font-medium leading-[1.2] whitespace-nowrap work-tag -${matchedClass}">${line}</span>`;
   }).join('');
 };
