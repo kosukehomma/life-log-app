@@ -1,17 +1,7 @@
 'use strict'
 
 import { makeWorkTags } from './utils';
-
-type Log = {
-  id: number;
-  date: string;
-  weight: string;
-  work: string;
-  comment: string;
-  breakfast: string;
-  lunch: string;
-  dinner: string;
-};
+import type { Log } from './types';
 
 // 画像をリサイズ（安全版）
 const resizeImage = (file: File | null, maxWidth = 640, quality = 0.4): Promise<string | null> => {

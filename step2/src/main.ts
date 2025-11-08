@@ -2,22 +2,13 @@
 
 import './style.css';
 import { getQuery, makeWorkTags } from "./utils";
-
-interface LogData {
-  date: string;
-  weight: number;
-  work: string;
-  breakfast: string;
-  lunch: string;
-  dinner: string;
-  comment: string;
-}
+import type { Log } from './types';
 
 const cardListLineUp = (): void => {
   const list = document.getElementById('card-list');
   if (!list) return;
 
-  const logs: LogData[] = JSON.parse(localStorage.getItem('logs') ?? '[]');
+  const logs: Log[] = JSON.parse(localStorage.getItem('logs') ?? '[]');
   const { year, month } = getQuery();
 
   list.innerHTML = '';
