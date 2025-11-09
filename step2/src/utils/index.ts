@@ -1,3 +1,5 @@
+'use strict';
+
 export * from './text';
-export * from './image';
 export * from './storage';
+export * from './image';

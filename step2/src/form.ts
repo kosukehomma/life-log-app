@@ -1,6 +1,6 @@
 'use strict'
 
-import { makeWorkTags } from './utils';
+import { makeWorkTags, loadFromStorage, saveToStorage } from '@/utils';
 import type { Log } from './types';
 
 // 画像をリサイズ（安全版）
@@ -170,6 +170,140 @@ const addLog = () => {
   }
 };
 
+/**
+ * ファイル選択時にプレビューを即時更新
+ */
+const setupImagePreview = (inputId: string) => {
+  const input = document.getElementById(inputId) as HTMLInputElement | null;
+  if (!input) return;
+
+  const preview = input.nextElementSibling as HTMLImageElement | null;
+  if (!preview) return;
+
+  input.addEventListener('change', () => {
+    const file = input.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+};
+
+const editLog = () => {
+  /**
+   * クエリからidを取得
+   */
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get('id');
+  const logs: Log[] = loadFromStorage('logs') ?? [];
+  
+  /**
+   * フォーム要素を取得
+   */
+  const form = document.querySelector('form') as HTMLFormElement;
+  const dateInput = document.querySelector<HTMLInputElement>('#date')!;
+  const weightInput = document.querySelector<HTMLInputElement>('#weight')!;
+  const workInput = document.querySelector<HTMLInputElement>('#work-input')!;
+  const commentInput = document.querySelector<HTMLInputElement>('#comment')!;
+  const breakfastInput = document.querySelector<HTMLInputElement>('#breakfast')!;
+  const lunchInput = document.querySelector<HTMLInputElement>('#lunch')!;
+  const dinnerInput = document.querySelector<HTMLInputElement>('#dinner')!;
+  
+  /**
+   * 編集モードなら既存データを埋め込む
+   */
+  if (editId) {
+    const targetLog = logs.find(log => String(log.id) === editId);
+    if (targetLog) {
+      dateInput.value = targetLog.date;
+      weightInput.value = targetLog.weight;
+      workInput.value = targetLog.work;
+      commentInput.value = targetLog.comment;
+
+      // --- 画像プレビューを既存データで上書き ---
+      const breakfastPreview = document.querySelector<HTMLImageElement>('#breakfast + img');
+      const lunchPreview = document.querySelector<HTMLImageElement>('#lunch + img');
+      const dinnerPreview = document.querySelector<HTMLImageElement>('#dinner + img');
+
+      if (targetLog.breakfast && breakfastPreview) {
+        breakfastPreview.src = targetLog.breakfast;
+      }
+      if (targetLog.lunch && lunchPreview) {
+        lunchPreview.src = targetLog.lunch;
+      }
+      if (targetLog.dinner && dinnerPreview) {
+        dinnerPreview.src = targetLog.dinner;
+      }
+    }
+  }
+  
+  setupImagePreview('breakfast');
+  setupImagePreview('lunch');
+  setupImagePreview('dinner');
+  /**
+   * 保存処理
+   */
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    // 既存ログ取得（編集時のみ）
+    const existing = editId ? logs.find(log => String(log.id) === editId) : null;
+
+    const toBase64 = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    };
+
+    // 各画像処理
+    const breakfastFile = breakfastInput.files?.[0];
+    const lunchFile = lunchInput.files?.[0];
+    const dinnerFile = dinnerInput.files?.[0];
+  
+    const newLog: Log = {
+      id: editId ? Number(editId) : Date.now(), // 新規なら現在時刻をidに
+      date: dateInput.value,
+      weight: weightInput.value,
+      work: workInput.value,
+      comment: commentInput.value || 'コメント未入力',
+      breakfast: existing?.breakfast || '',
+      lunch: existing?.lunch || '',
+      dinner: existing?.dinner || '',
+    };
+
+    // ファイルがあるものだけ変換して上書き
+    if (breakfastFile) newLog.breakfast = await toBase64(breakfastFile);
+    if (lunchFile) newLog.lunch = await toBase64(lunchFile);
+    if (dinnerFile) newLog.dinner = await toBase64(dinnerFile);
+
+    // 保存
+    if (editId) {
+      // 既存ログ更新
+      const updatedLogs = logs.map(log => String(log.id) === editId ? newLog : log);
+      saveToStorage('logs', updatedLogs);
+    } else {
+      // 新規追加
+      saveToStorage('logs', [...logs, newLog]);
+    }
+  
+    alert(editId ? '記録を更新しました！' : '新しい記録を追加しました！');
+    location.href = './index.html'
+  });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
-  addLog();
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get('id');
+
+  if (editId) {
+    editLog();
+  } else {
+    addLog();
+  }
 });

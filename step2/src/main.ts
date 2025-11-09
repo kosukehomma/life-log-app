@@ -1,7 +1,8 @@
 'use strict'
 
 import './style.css';
-import { getQuery, makeWorkTags } from "./utils";
+import { getQuery, makeWorkTags } from "@/utils";
+import { saveToStorage, loadFromStorage } from '@/utils';
 import type { Log } from './types';
 
 const cardListLineUp = (): void => {
@@ -63,10 +64,10 @@ const cardListLineUp = (): void => {
             <li class="flex-none scroll-snap-start max-w-[185px] relative before:content-['朝食'] before:block before:bg-primary before:text-white before:px-[6px] before:py-[4px] before:text-[12px] before:absolute before:top-0 before:left-0 before:rounded-tl-[8px]">
               <img src="${log.breakfast}" alt="朝食" class="w-full h-auto aspect-[14/9] object-cover object-center rounded-[8px]" />
             </li>
-            <li class="flex-none scroll-snap-start max-w-[185px] relative before:content-['朝食'] before:block before:bg-primary before:text-white before:px-[6px] before:py-[4px] before:text-[12px] before:absolute before:top-0 before:left-0 before:rounded-tl-[8px]">
+            <li class="flex-none scroll-snap-start max-w-[185px] relative before:content-['昼食'] before:block before:bg-primary before:text-white before:px-[6px] before:py-[4px] before:text-[12px] before:absolute before:top-0 before:left-0 before:rounded-tl-[8px]">
               <img src="${log.lunch}" alt="昼食" class="w-full h-auto aspect-[14/9] object-cover object-center rounded-[8px]" />
             </li>
-            <li class="flex-none scroll-snap-start max-w-[185px] relative before:content-['朝食'] before:block before:bg-primary before:text-white before:px-[6px] before:py-[4px] before:text-[12px] before:absolute before:top-0 before:left-0 before:rounded-tl-[8px]">
+            <li class="flex-none scroll-snap-start max-w-[185px] relative before:content-['夕食'] before:block before:bg-primary before:text-white before:px-[6px] before:py-[4px] before:text-[12px] before:absolute before:top-0 before:left-0 before:rounded-tl-[8px]">
               <img src="${log.dinner}" alt="夕食" class="w-full h-auto aspect-[14/9] object-cover object-center rounded-[8px]" />
             </li>
           </ul>
@@ -75,14 +76,34 @@ const cardListLineUp = (): void => {
         <div class="item-comment text-[12px] leading-[1.3] mt-[8px] [&.is-empty]:text-gray-500 [&.is-empty]:italic ${log.comment === 'コメント未入力' ? 'is-empty' : ''}">
           ${log.comment}
         </div>
+
+        <div class="card-actions flex justify-end gap-[10px] mt-auto pt-[6px] border-t border-[rgba(0,0,0,0.1)]">
+          <button class="bg-blue-600 text-white text-[13px] font-medium p-[4px_8px] rounded-[8px] hover:underline edit-btn">編集</button>
+          <button class="bg-red-600 text-white text-[13px] font-medium p-[4px_8px] rounded-[8px] hover:underline delete-btn">削除</button>
+        </div>
       `;
+
+      const editBtn = li.querySelector('.edit-btn') as HTMLButtonElement;
+      const deleteBtn = li.querySelector('.delete-btn') as HTMLButtonElement;
+
+      editBtn.addEventListener('click', () => {
+        location.href = `./form.html?id=${log.id}`;
+      });
+
+      deleteBtn.addEventListener('click', () => {
+        if (confirm('この記録を削除しますか？')) {
+          const updatedLogs = logs.filter(l => l.id !== log.id);
+          saveToStorage('logs', updatedLogs);
+          cardListLineUp();
+        }
+      });
   
       list.appendChild(li);
     });
   }
 
   const addLi = document.createElement('li');
-  addLi.className = "card-list__add max-w-[calc(25%-12px)] w-full min-w-[193px] border-4 border-dashed border-primary rounded-[20px] p-[20px_16px] flex flex-col justify-center items-center min-h-[437px] h-full"
+  addLi.className = "card-list__add max-w-[calc(25%-12px)] w-full min-w-[193px] border-4 border-dashed border-primary rounded-[20px] p-[20px_16px] flex flex-col justify-center items-center min-h-[482px] h-full"
   addLi.innerHTML = `
     <button class="card-list__add-button bg-transparent outline-none rounded-full border-none cursor-pointer active:mt-[3px]" onclick="location.href='./form.html'">
       <img src="/add_circle.png" alt="add" />
@@ -97,3 +118,4 @@ const cardListLineUp = (): void => {
 document.addEventListener('DOMContentLoaded', () => {
   cardListLineUp();
 });
+
