@@ -73,13 +73,13 @@ const cardListLineUp = (): void => {
           </ul>
         </div>
   
-        <div class="item-comment text-[12px] leading-[1.3] mt-[8px] [&.is-empty]:text-gray-500 [&.is-empty]:italic ${log.comment === 'コメント未入力' ? 'is-empty' : ''}">
+        <div class="item-comment text-[12px] leading-[1.3] mt-[8px] pb-[6px] [&.is-empty]:text-gray-500 [&.is-empty]:italic ${log.comment === 'コメント未入力' ? 'is-empty' : ''}">
           ${log.comment}
         </div>
 
         <div class="card-actions flex justify-end gap-[10px] mt-auto pt-[6px] border-t border-[rgba(0,0,0,0.1)]">
           <button class="bg-blue-600 text-white text-[13px] font-medium p-[4px_8px] rounded-[8px] hover:underline edit-btn">編集</button>
-          <button class="bg-red-600 text-white text-[13px] font-medium p-[4px_8px] rounded-[8px] hover:underline delete-btn">削除</button>
+          <button class="bg-red-600 text-white text-[13px] font-medium p-[4px_8px] rounded-[8px] hover:underline delete-btn" data-id="${log.id}">削除</button>
         </div>
       `;
 
@@ -92,9 +92,12 @@ const cardListLineUp = (): void => {
 
       deleteBtn.addEventListener('click', () => {
         if (confirm('この記録を削除しますか？')) {
-          const updatedLogs = logs.filter(l => l.id !== log.id);
-          saveToStorage('logs', updatedLogs);
-          cardListLineUp();
+          li.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+          setTimeout(() => {
+            const updatedLogs = logs.filter(l => l.id !== log.id);
+            saveToStorage('logs', updatedLogs);
+            cardListLineUp();
+          }, 300);
         }
       });
   
