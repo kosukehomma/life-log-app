@@ -1,8 +1,7 @@
 'use strict'
 
 import './style.css';
-import { getQuery, makeWorkTags } from "@/utils";
-import { saveToStorage, loadFromStorage } from '@/utils';
+import { getQuery, makeWorkTags, saveToStorage } from "@/utils";
 import type { Log } from './types';
 
 const cardListLineUp = (): void => {
