@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import type { Meal } from '../types';
+import { Trash2, ImagePlus } from 'lucide-react';
 
 type Props = {
   meal: Meal;
@@ -26,38 +27,51 @@ const FormMealInput = ({ meal, onChange }: Props) => {
   };
 
   return (
-    <div className="flex flex-col gap-2 w-[200px]">
-      <div className="border rounded-md p-1 cursor-pointer relative">
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileRef}
-          onChange={handleFileChange}
-          className="hidden"
-        />
+    <div className="w-[220px] p-4 border rounded-xl shadow-sm bg-white flex flex-col gap-3 relative">
+      {/* Header */}
+      <h4 className="text-base font-semibold text-gray-700">{meal.label}</h4>
 
-        <img
-          src={meal.img || '/no-image.png'}
-          alt="meal preview"
-          className="w-full h-[150px] object-cover rounded-mg"
-          onClick={() => fileRef.current?.click()}
-        />
+      {/* Image Preview */}
+      <div
+        className="w-full h-[140px] overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer relative"
+        onClick={() => fileRef.current?.click()}
+      >
+        {meal.img ? (
+          <img src={meal.img} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="flex flex-col items-center text-gray-400">
+            <ImagePlus size={28} />
+            <span className="text-xs mt-1">画像を追加</span>
+          </div>
+        )}
+      </div>
 
+      {/* Delete Button */}
+      {meal.img && (
         <button
           type="button"
           onClick={handleRemove}
-          className="absolute bottom-1 right-1 bg-gray-400 text-white px-2 py-1 rounded-md text-xs"
+          className="absolute top-3 right-3 bg-white rounded-full shadow p-1 hover:bg-red-50"
         >
-          削除
+          <Trash2 size={16} className="text-red-500" />
         </button>
-      </div>
+      )}
 
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
+      {/* Input */}
       <input
         type="text"
         value={meal.name ?? ''}
         placeholder={`${meal.label}の料理名`}
         onChange={(e) => onChange({ ...meal, name: e.target.value })}
-        className="border p-1 rounded-md text-sm"
+        className="border p-2 rounded-md text-sm"
       />
     </div>
   );

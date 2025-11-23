@@ -48,30 +48,34 @@ const Add = () => {
   };
 
   return (
-    <div className="max-w-[720px] mx-auto px-6 py-10 space-y-10">
-      <h2 className="text-3xl font-bold">新規ログを追加</h2>
+    <div className="max-w-[720px] p-10">
+      <h2 className="text-3xl font-bold mb-10">新規ログを追加</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-10">
-        {/* 基本情報 */}
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* 日付と体重*/}
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold border-b pb-1">基本情報</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <label className="flex flex-col gap-1">
+          <h3 className="text-lg font-bold border-l-4 border-primary pl-2">基本情報</h3>
+
+          <div className="flex gap-6">
+            <label className="flex flex-col flex-1 font-bold">
               日付
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 className="border p-2 rounded-md"
+                required
               />
             </label>
-            <label className="flex flex-col gap-1">
+
+            <label className="flex flex-col flex-1 font-bold">
               体重（kg）
               <input
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(Number(e.target.value))}
                 className="border p-2 rounded-md"
+                required
               />
             </label>
           </div>
@@ -79,14 +83,14 @@ const Add = () => {
 
         {/* 運動 */}
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold border-b pb-1">運動</h3>
+          <h3 className="text-lg font-bold border-l-4 border-primary pl-2">運動</h3>
           <FormWorkTag value={workTags} onChange={memoSetWorkTags} />
         </section>
 
         {/* 食事 */}
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold border-b pb-1">食事</h3>
-          <div className="flex gap-4">
+          <h3 className="text-lg font-bold border-l-4 border-primary pl-2">食事</h3>
+          <div className="flex gap-4 mt-2">
             {meals.map((meal, i) => (
               <FormMealInput key={i} meal={meal} onChange={(updated) => updateMeal(i, updated)} />
             ))}
@@ -95,12 +99,12 @@ const Add = () => {
 
         {/* コメント */}
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold border-b pb-1">コメント</h3>
+          <h3 className="text-lg font-bold border-l-4 border-primary pl-2">コメント</h3>
           <textarea
             value={comment}
             onChange={handleCommentChange}
             maxLength={128}
-            className="border p-2 rounded-md block resize-none w-full h-[120px]"
+            className="border p-3 rounded-md resize-none w-full h-[120px]"
             placeholder="コメントを入力（最大128文字）"
           />
           <div className="text-right text-sm mt-1">
@@ -110,9 +114,15 @@ const Add = () => {
           </div>
         </section>
 
-        <button type="submit" className="w-full py-3 bg-primary text-white font-bold rounded-md">
-          保存する
-        </button>
+        {/* ボタン */}
+        <div className="flex justify-end pt-4">
+          <button
+            type="submit"
+            className="py-2 px-8 bg-primary text-white font-bold rounded-md shadow-md hover:opacity-80 transition"
+          >
+            保存する
+          </button>
+        </div>
       </form>
     </div>
   );
