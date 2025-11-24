@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import CardList from '../components/CardList';
-import AddButton from '../components/AddButton';
 import { useLogs } from '../store/useLogs';
+import DailyCard from '../components/DailyCard';
+import AddButton from '../components/AddButton';
 
 const Home = () => {
-  const { logs, loadFromStorage, deleteLog } = useLogs();
+  const { logs, loadFromStorage } = useLogs();
 
   useEffect(() => {
     loadFromStorage();
@@ -14,14 +14,17 @@ const Home = () => {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 7);
 
-  const handleEdit = (id: number) => {
-    window.location.href = `/edit/${id}`;
-  };
-
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">最新の7日間</h2>
-      <CardList logs={latest7} onEdit={handleEdit} onDelete={deleteLog} />
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">最新の7日間</h2>
+
+      {/* DailyCardを並べる */}
+      <div className="flex flex-wrap justify-center gap-4">
+        {latest7.map((log) => (
+          <DailyCard key={log.id} log={log} />
+        ))}
+      </div>
+
       <AddButton />
     </div>
   );

@@ -1,38 +1,29 @@
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import CardList from '../components/CardList';
+import DailyCard from '../components/DailyCard';
 import AddButton from '../components/AddButton';
 import { useLogs } from '../store/useLogs';
 
 const Month = () => {
-  const { year, month } = useParams();
-  const { logs, loadFromStorage, deleteLog } = useLogs();
+  const { logs, loadFromStorage } = useLogs();
 
   useEffect(() => {
     loadFromStorage();
   }, []);
 
-  const monthlyLogs = logs.filter((log) => {
-    const [y, m] = log.date.split('/');
-    return y === year && m === month;
-  });
-
-  const handleEdit = (id: number) => {
-    window.location.href = `/edit/${id}`;
-  };
-
   return (
-    <div className="ml-56 p-6">
-      <Sidebar logs={logs} />
+    <div className="p-4">
+      <div className="flex-1">
+        <h2 className="text-2xl font-bold mb-4 text-center">月一覧</h2>
 
-      <h2 className="text-2xl font-bold mb-6">
-        {year}年 {Number(month)}月の記録
-      </h2>
+        {/* カード一覧 */}
+        <div className="flex flex-wrap justify-center gap-6">
+          {logs.map((log) => (
+            <DailyCard key={log.id} log={log} />
+          ))}
+        </div>
 
-      <CardList logs={monthlyLogs} onEdit={handleEdit} onDelete={deleteLog} />
-
-      <AddButton />
+        <AddButton />
+      </div>
     </div>
   );
 };

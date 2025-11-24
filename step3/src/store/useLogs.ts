@@ -3,80 +3,86 @@ import type { Log } from '../types';
 
 type LogsState = {
   logs: Log[];
-  addLog: (log: Log) => void;
-  updateLog: (id: number, updated: Partial<Log>) => void;
-  deleteLog: (id: number) => void;
   loadFromStorage: () => void;
-  saveToStorage: () => void;
 };
 
-export const useLogs = create<LogsState>((set, get) => ({
+export const useLogs = create<LogsState>((set) => ({
   logs: [],
 
   // --- ローカルストレージ読み込み
   loadFromStorage: () => {
-    const raw = localStorage.getItem('logs');
-    if (raw) {
-      try {
-        const storedLogs = JSON.parse(raw);
-        set({ logs: storedLogs });
-      } catch (e) {
-        console.error('localStorage read error:', e);
-      }
-    }
-
-    // ダミーデータ（初回だけ）
-    if (!raw) {
-      const sample = [
-        {
-          id: 1,
-          date: '2025-01-01',
-          weight: 85,
-          work: 'シャドウ3R, サンドバッグ3R, ミット2R',
-          comment: 'テスト表示用のコメントです',
-          meals: [
-            { img: '/meal-sample04.png', label: '朝食' as const, name: '朝食オードブル' },
-            { img: '/meal-sample05.png', label: '昼食' as const, name: 'トースト' },
-            { img: '/meal-sample06.png', label: '夕食' as const, name: 'インドカレー' },
-          ],
+    const dummyLogs: Log[] = [
+      {
+        id: 1,
+        date: '2025-02-20',
+        weight: 104.3,
+        workout: ['ミット3R', 'サンドバッグ3R', '腹筋3種', 'ジョギング5km'],
+        comment: '今日はかなり動けた、汗めっちゃ出た。',
+        meals: {
+          morning: { imageUrl: '/meal-sample04.png', memo: 'オートミール＋卵＋味噌汁' },
+          lunch: { imageUrl: '/meal-sample05.png', memo: 'チキンサラダ' },
+          dinner: { imageUrl: '/meal-sample06.png', memo: 'インドカレー' },
+          snack: { imageUrl: '/meal-sample07.png', memo: 'プロテインバー' },
         },
-      ];
+      },
+      {
+        id: 2,
+        date: '2025-02-19',
+        weight: 104.8,
+        workout: ['シャドー3R', 'ミット2R', 'サンドバッグ3R'],
+        comment: '動きは悪くない。夜ちょい食べすぎ。',
+        meals: {
+          morning: { imageUrl: '/meal-sample05.png', memo: '' },
+          lunch: { imageUrl: '/meal-sample07.png', memo: '' },
+          dinner: { imageUrl: '/meal-sample04.png', memo: '' },
+        },
+      },
+      {
+        id: 3,
+        date: '2025-02-18',
+        weight: 105.2,
+        workout: ['縄跳び2R', 'スクワット', 'レッグエクステ'],
+        comment: '脚の張りが強め。明日は軽めに。昼ラーメン食べちゃった。',
+        meals: {
+          morning: { imageUrl: '/meal-sample06.png', memo: '' },
+          lunch: { imageUrl: '/meal-sample04.png', memo: '' },
+          dinner: { imageUrl: '/meal-sample05.png', memo: '' },
+        },
+      },
+      {
+        id: 4,
+        date: '2025-02-17',
+        weight: 105.6,
+        workout: ['胸トレ(軽め)'],
+        comment: '',
+        meals: {},
+      },
+      {
+        id: 5,
+        date: '2025-02-16',
+        weight: 106.2,
+        workout: [],
+        comment: '',
+        meals: {},
+      },
+      {
+        id: 6,
+        date: '2025-02-15',
+        weight: 106.7,
+        workout: [],
+        comment: '',
+        meals: {},
+      },
+      {
+        id: 7,
+        date: '2025-02-14',
+        weight: 107.0,
+        workout: [],
+        comment: '',
+        meals: {},
+      },
+    ];
 
-      localStorage.setItem('logs', JSON.stringify(sample));
-      set({ logs: sample });
-    }
-  },
-
-  // --- ローカルストレージ保存
-  saveToStorage: () => {
-    const { logs } = get();
-    localStorage.setItem('logs', JSON.stringify(logs));
-  },
-
-  // --- ログ追加
-  addLog: (log) => {
-    set((state) => {
-      const newLogs = [...state.logs, log];
-      localStorage.setItem('logs', JSON.stringify(newLogs));
-      return { logs: newLogs };
-    });
-  },
-
-  // --- ログ更新
-  updateLog: (id, updated) => {
-    set((state) => {
-      const newLogs = state.logs.map((l) => (l.id === id ? { ...l, ...updated } : l));
-      localStorage.setItem('logs', JSON.stringify(newLogs));
-      return { logs: newLogs };
-    });
-  },
-
-  // --- ログ削除
-  deleteLog: (id) => {
-    set((state) => {
-      const newLogs = state.logs.filter((l) => l.id !== id);
-      localStorage.setItem('logs', JSON.stringify(newLogs));
-      return { logs: newLogs };
-    });
+    set({ logs: dummyLogs });
   },
 }));

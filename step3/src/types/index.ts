@@ -1,15 +1,20 @@
 export type Meal = {
-  img: string;
-  label: '朝食' | '昼食' | '夕食';
-  name?: string;
-  note?: string;
+  imageUrl: string;
+  memo: string;
+};
+
+export type Meals = {
+  morning?: Meal;
+  lunch?: Meal;
+  dinner?: Meal;
+  snack?: Meal;
 };
 
 export type Log = {
   id: number;
   date: string;
   weight: number;
-  work: string;
+  workout: string[];
   comment: string;
-  meals: Meal[];
+  meals: Meals;
 };
