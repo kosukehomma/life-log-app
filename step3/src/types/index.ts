@@ -1,6 +1,11 @@
+export type MealType = 'morning' | 'lunch' | 'dinner' | 'snack';
+
 export type Meal = {
-  imageUrl: string;
+  id: string;
+  type: MealType;
+  imageUrl: string | null;
   memo: string;
+  created_at?: string;
 };
 
 export type Meals = {
@@ -16,5 +21,5 @@ export type Log = {
   weight: number;
   workout: string[];
   comment: string;
-  meals: Meals;
+  meals: Partial<Record<MealType, Meal>>;
 };

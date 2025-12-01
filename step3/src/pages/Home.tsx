@@ -1,14 +1,9 @@
-import { useEffect } from 'react';
 import { useLogs } from '../store/useLogs';
 import DailyCard from '../components/DailyCard';
 import AddButton from '../components/AddButton';
 
 const Home = () => {
-  const { logs, loadFromStorage } = useLogs();
-
-  useEffect(() => {
-    loadFromStorage();
-  }, []);
+  const logs = useLogs((state) => state.logs);
 
   const latest7 = [...logs]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())

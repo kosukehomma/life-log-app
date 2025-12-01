@@ -1,14 +1,9 @@
-import { useEffect } from 'react';
 import DailyCard from '../components/DailyCard';
 import AddButton from '../components/AddButton';
 import { useLogs } from '../store/useLogs';
 
 const Month = () => {
-  const { logs, loadFromStorage } = useLogs();
-
-  useEffect(() => {
-    loadFromStorage();
-  }, []);
+  const logs = useLogs((state) => state.logs);
 
   return (
     <div className="p-4">
@@ -16,7 +11,7 @@ const Month = () => {
         <h2 className="text-2xl font-bold mb-4 text-center">月一覧</h2>
 
         {/* カード一覧 */}
-        <div className="flex flex-wrap justify-center gap-6">
+        <div className="flex flex-wrap justify-center gap-4">
           {logs.map((log) => (
             <DailyCard key={log.id} log={log} />
           ))}
