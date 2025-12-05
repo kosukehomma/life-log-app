@@ -39,7 +39,7 @@ export const getWorkoutStyle = (text: string) => {
       : item?.category === 'muscle'
       ? 'bg-orange-500'
       : item?.category === 'boxing'
-      ? 'bg-blue-500'
+      ? 'bg-blue-400'
       : item?.category === 'stretch'
       ? 'bg-purple-400'
       : 'bg-gray-400';

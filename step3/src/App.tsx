@@ -5,9 +5,8 @@ import Layout from './components/Layout';
 
 import Home from './pages/Home';
 import Month from './pages/Month';
-import Add from './pages/Add';
-import Edit from './pages/Edit';
-import MealEdit from './pages/meal/Edit';
+import AddLog from './pages/AddLog';
+import EditLog from './pages/Edit';
 
 const App = () => {
   useEffect(() => {
@@ -19,9 +18,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/month/:year/:month" element={<Month />} />
-        <Route path="/add" element={<Add />} />
-        <Route path="/edit/:id" element={<Edit />} />
-        <Route path="/meal/edit/:mealId" element={<MealEdit />} />
+        <Route path="/add" element={<AddLog />} />
+        <Route path="/edit/:logId" element={<EditLog />} />
       </Routes>
     </Layout>
   );

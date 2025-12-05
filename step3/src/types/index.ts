@@ -19,6 +19,7 @@ export type Log = {
   id: number;
   date: string;
   weight: number;
+  fat?: number | null;
   workout: string[];
   comment: string;
   meals: Partial<Record<MealType, Meal>>;

@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import type { Meals, MealType } from '../types';
-import { Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const tabs: MealType[] = ['morning', 'lunch', 'dinner', 'snack'];
@@ -13,7 +12,8 @@ const labels = {
 
 type Props = {
   meals: Meals;
-  logId: number;
+  logId?: number | 'new';
+  isNew?: boolean;
 };
 
 const MealCarousel = ({ meals, logId }: Props) => {
@@ -69,11 +69,22 @@ const MealCarousel = ({ meals, logId }: Props) => {
           return (
             <div key={type} className="min-w-full px-1 relative">
               {/* Image */}
-              <div className="relative group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm aspect-video flex items-center justify-center">
+              <div
+                className="relative group overflow-hidden rounded-xl border border-slate-200 bg-gray-100 shadow-sm aspect-[14/9] flex items-center justify-center cursor-pointer"
+                onClick={() =>
+                  navigate(`/edit/${logId}?meal=${type}`, {
+                    state: { focus: 'meal', mealType: type },
+                  })
+                }
+              >
+                {/* 左右フチフェード */}
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-white/90 to-transparent z-10" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-white/90 to-transparent z-10" />
+
                 {meal?.imageUrl ? (
                   <img
                     src={meal.imageUrl}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
                   <div className="flex flex-col items-center text-gray-400 gap-1">
@@ -91,23 +102,13 @@ const MealCarousel = ({ meals, logId }: Props) => {
                         d="M3 7h18M3 7l1.7 11.6c.1.8.8 1.4 1.6 1.4h11.4c.8 0 1.5-.6 1.6-1.4L21 7M9 7V4h6v3"
                       />
                     </svg>
-                    <span className="text-xs">画像を追加</span>
+                    <span className="text-xs">{labels[type]}の画像を追加</span>
                   </div>
                 )}
               </div>
 
               {/* Memo */}
               <p className="text-xs mt-1 text-gray-700 line-clamp-2">{meal?.memo || ''}</p>
-
-              {/* 編集ボタン */}
-              {meal && (
-                <button
-                  onClick={() => navigate(`/meal/edit/${logId}-${type}`)}
-                  className="absolute top-2 right-3 bg-white/80 p-1.5 rounded-full shadow backdrop-blur-sm hover:bg-white transition"
-                >
-                  <Pencil size={16} className="text-gray-700" />
-                </button>
-              )}
             </div>
           );
         })}

@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { useLogs } from '../store/useLogs';
 import MealCarousel from './MealCarousel';
 import type { Log } from '../types';
 import { getWorkoutStyle } from '../utils/workoutCategory';
@@ -7,12 +9,29 @@ type Props = {
 };
 
 const DailyCard = ({ log }: Props) => {
+  const navigate = useNavigate();
+  const deleteLog = useLogs((s) => s.deleteLog);
+
   return (
-    <div className="w-full max-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col gap-4">
+    <div className="w-full max-w-[280px] bg-white rounded-2xl border border-b border-slate-300 shadow-lg p-4 flex flex-col gap-4">
       {/* Header */}
-      <div className="flex justify-between items-baseline border-b pb-1">
-        <p className="text-lg font-medium text-gray-700">{log.date}</p>
-        <p className="text-2xl font-semibold text-gray-900">{log.weight}kg</p>
+      <div className="flex flex-col gap-1 border-b pb-1">
+        <p className="text-lg font-semibold text-gray-700 tracking-wide">{log.date}</p>
+
+        <div className="flex items-baseline gap-4">
+          <div className="flex items-baseline whitespace-nowrap">
+            <span className="text-[9px] text-gray-400 tracking-wide mr-1 uppercase">weight</span>
+            <span className="text-2xl font-bold text-gray-900">{log.weight}kg</span>
+          </div>
+          {typeof log.fat === 'number' && (
+            <div className="flex items-baseline whitespace-nowrap">
+              <span className="text-[9px] text-gray-400 tracking-wide mr-1 uppercase">fat</span>
+              <span className="text-xl font-semibold text-sky-800">
+                {log.fat ? `${log.fat}%` : '--'}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Workout */}
@@ -25,7 +44,7 @@ const DailyCard = ({ log }: Props) => {
               return (
                 <span
                   key={i}
-                  className={`flex items-center gap-1 px-2 py-0.5 text-xs rounded-lg text-white ${color} whitespace-nowrap`}
+                  className={`flex items-center gap-1 px-2 py-0.5 text-xs rounded-lg text-white ${color} whitespace-nowrap drop-shadow-md`}
                 >
                   <span>{icon}</span>
                   {item}
@@ -49,6 +68,26 @@ const DailyCard = ({ log }: Props) => {
           <p className="text-xs text-gray-600 leading-5">{log.comment}</p>
         </div>
       )}
+
+      <div className="flex justify-end gap-2 pt-1">
+        <button
+          type="button"
+          onClick={() => navigate(`/edit/${log.id}`)}
+          className="px-3 py-1 text-xs rounded-md bg-primary text-white font-medium"
+        >
+          編集
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (!confirm('この1日のログを削除しますか？')) return;
+            deleteLog(log.id);
+          }}
+          className="px-3 py-1 text-xs rounded-md bg-red-500 text-white font-medium"
+        >
+          削除
+        </button>
+      </div>
     </div>
   );
 };
