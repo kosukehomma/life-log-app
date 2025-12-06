@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Month from './pages/Month';
 import AddLog from './pages/AddLog';
 import EditLog from './pages/Edit';
+import MyPage from './pages/MyPage';
 
 const App = () => {
   // const logs = useLogs((state) => state.logs);
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/month/:year/:month" element={<Month />} />
         <Route path="/add" element={<AddLog />} />
         <Route path="/edit/:logId" element={<EditLog />} />
+        <Route path="/mypage" element={<MyPage />} />
       </Routes>
     </Layout>
   );

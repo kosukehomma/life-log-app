@@ -75,6 +75,7 @@ const Sidebar = () => {
           bg-primary text-white
           px-6 overflow-y-auto
           pt-12 z-20
+          border-r border-white/10
        "
       >
         {/* Home */}
@@ -118,7 +119,11 @@ const Sidebar = () => {
                             onClick={() => navigate(`/month/${year}/${month}`)}
                             className={`
                               block text-white/80 hover:text-white transition ml-auto
-                              ${isActive ? 'font-bold text-2xl text-[#55ebbb] underline' : ''}
+                              ${
+                                isActive
+                                  ? 'font-bold text-[#55ebbb] underline underline-offset-2'
+                                  : ''
+                              }
                             `}
                           >
                             {Number(month)}月
@@ -135,7 +140,7 @@ const Sidebar = () => {
       </aside>
 
       {/* SP Header */}
-      <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-primary text-white flex items-center justify-between px-4 z-30 shadow">
+      <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-primary text-white flex items-center justify-between px-4 z-30 shadow pt-[env(safe-area-inset-top)]">
         <button onClick={() => navigate('/')} className="font-bold">
           LIFE LOG
         </button>
@@ -146,7 +151,7 @@ const Sidebar = () => {
 
       {/* SP Dropdown (ハンバーガー押下時) */}
       {menuOpen && (
-        <div className="md:hidden fixed top-14 right-0 bg-primary/90 text-white z-30 p-3 text-right max-w-[150px] w-full">
+        <div className="md:hidden fixed top-14 right-0 bg-primary/90 text-white z-30 p-3 text-right max-w-[150px] w-full origin-top animate-slide-down">
           {/* My Page */}
           <button
             onClick={() => {
@@ -173,19 +178,24 @@ const Sidebar = () => {
 
                 {isOpen && (
                   <ul className="mt-2 space-y-2">
-                    {archive[year].map((month) => (
-                      <li key={month} className="border-t pt-2 border-dotted">
-                        <button
-                          onClick={() => {
-                            navigate(`/month/${year}/${month}`);
-                            setMenuOpen(false);
-                          }}
-                          className="block text-white/80 ml-auto hover:text-whit"
-                        >
-                          {Number(month)}月
-                        </button>
-                      </li>
-                    ))}
+                    {archive[year].map((month) => {
+                      const isActive = activeYear === year && activeMonth === month;
+                      return (
+                        <li key={month} className="border-t pt-2 border-dotted">
+                          <button
+                            onClick={() => {
+                              navigate(`/month/${year}/${month}`);
+                              setMenuOpen(false);
+                            }}
+                            className={`block text-white/80 ml-auto hover:text-white
+                              ${isActive ? 'text-[#55ebbb] font-bold underline' : ''}
+                            `}
+                          >
+                            {Number(month)}月
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
