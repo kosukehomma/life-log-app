@@ -10,7 +10,7 @@ const Home = () => {
     .slice(0, 7);
 
   return (
-    <div className="p-4">
+    <div className="px-4 py-24 sm:py-24 md:py-4 md:px-4">
       <h2 className="text-2xl font-bold mb-4 text-center">最新の7日間</h2>
 
       {/* DailyCardを並べる */}

@@ -9,6 +9,9 @@ import AddLog from './pages/AddLog';
 import EditLog from './pages/Edit';
 
 const App = () => {
+  // const logs = useLogs((state) => state.logs);
+  // console.log('🔥 LOG DATA:', logs);
+
   useEffect(() => {
     useLogs.getState().loadFromStorage();
   }, []);

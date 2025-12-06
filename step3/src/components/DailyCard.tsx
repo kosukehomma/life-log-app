@@ -13,7 +13,7 @@ const DailyCard = ({ log }: Props) => {
   const deleteLog = useLogs((s) => s.deleteLog);
 
   return (
-    <div className="w-full max-w-[280px] bg-white rounded-2xl border border-b border-slate-300 shadow-lg p-4 flex flex-col gap-4">
+    <div className="w-full max-w-full sm:max-w-[48%] md:max-w-[280px] bg-white rounded-2xl border border-b border-slate-300 shadow-lg p-4 flex flex-col gap-4">
       {/* Header */}
       <div className="flex flex-col gap-1 border-b pb-1">
         <p className="text-lg font-semibold text-gray-700 tracking-wide">{log.date}</p>
