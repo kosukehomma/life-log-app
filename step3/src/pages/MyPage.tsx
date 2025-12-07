@@ -76,12 +76,21 @@ const MyPage = () => {
         {/* 保存ボタン */}
         <button
           onClick={handleSave}
-          className="w-full bg-primary text-white py-2 rounded font-bold hover:opacity-90"
+          className={`
+            w-full text-white py-2 rounded font-bold transition
+            ${saved ? 'bg-green-600' : 'bg-primary hover:opacity-90'}
+          `}
+          disabled={saved}
         >
-          保存
+          {saved ? '保村済み✔︎' : '保存'}
         </button>
 
-        {saved && <p className="text-secondary font-semibold mt-2">保存しました！</p>}
+        {/* Toast */}
+        {saved && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-primary/70 text-white py-2 px-4 rounded shadow-lg backdrop-blur-sm animate-fade-in z-[999]">
+            保存しました！✔︎
+          </div>
+        )}
       </div>
     </div>
   );

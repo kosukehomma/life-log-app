@@ -7,11 +7,6 @@ const Sidebar = () => {
   const location = useLocation();
   const logs = useLogs((state) => state.logs);
 
-  // 現在の年月を取得
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const limitYears = 5;
-
   // ----- 年月データ生成
   const archive = useMemo(() => {
     const grouped: Record<string, Set<string>> = {};
@@ -37,14 +32,13 @@ const Sidebar = () => {
     });
 
     // 表示対象の年だけフィルタ
-    return Object.keys(grouped)
-      .filter((y) => currentYear - Number(y) < limitYears)
-      .sort((a, b) => Number(b) - Number(a))
-      .reduce((sorted, year) => {
-        sorted[year] = Array.from(grouped[year]).sort((a, b) => Number(b) - Number(a));
-        return sorted;
-      }, {} as Record<string, string[]>);
-  }, [logs, currentYear]);
+    const sortedYears = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
+    const sorted: Record<string, string[]> = {};
+    sortedYears.forEach((year) => {
+      sorted[year] = Array.from(grouped[year]).sort((a, b) => Number(b) - Number(a));
+    });
+    return sorted;
+  }, [logs]);
 
   // ---- 開閉状態の年リスト ----
   const [openYears, setOpenYears] = useState<string[]>([]);
@@ -95,29 +89,31 @@ const Sidebar = () => {
 
         {/* 年のリスト */}
         <ul className="log-list__year text-2xl font-bold">
-          {Object.keys(archive).map((year) => {
-            const isOpen = openYears.includes(year);
+          {Object.entries(archive)
+            .sort((a, b) => Number(b[0]) - Number(a[0]))
+            .map(([year, months], index) => {
+              const isOpen = openYears.includes(year);
 
-            return (
-              <li key={year} className="mt-3 first:mt-0">
-                {/* 年 */}
-                <button
-                  onClick={() => toggleYear(year)}
-                  className="w-full text-right pr-5 hover:underline"
-                >
-                  {year}年
-                </button>
+              return (
+                <li key={index} className="mt-3 first:mt-0">
+                  {/* 年 */}
+                  <button
+                    onClick={() => toggleYear(year)}
+                    className="w-full text-right pr-5 hover:underline"
+                  >
+                    {year}年
+                  </button>
 
-                {/* 月のリスト */}
-                {isOpen && (
-                  <ul className="log-list__month ml-4 mt-2 space-y-2 transition-all duration-300">
-                    {archive[year].map((month) => {
-                      const isActive = activeYear === year && activeMonth === month;
-                      return (
-                        <li key={month} className="mt-2">
-                          <button
-                            onClick={() => navigate(`/month/${year}/${month}`)}
-                            className={`
+                  {/* 月のリスト */}
+                  {isOpen && (
+                    <ul className="log-list__month ml-4 mt-2 space-y-2 transition-all duration-300">
+                      {months.map((month: string) => {
+                        const isActive = activeYear === year && activeMonth === month;
+                        return (
+                          <li key={month} className="mt-2">
+                            <button
+                              onClick={() => navigate(`/month/${year}/${month}`)}
+                              className={`
                               block text-white/80 hover:text-white transition ml-auto
                               ${
                                 isActive
@@ -125,17 +121,17 @@ const Sidebar = () => {
                                   : ''
                               }
                             `}
-                          >
-                            {Number(month)}月
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </li>
-            );
-          })}
+                            >
+                              {Number(month)}月
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
         </ul>
       </aside>
 
