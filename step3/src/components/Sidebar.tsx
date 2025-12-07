@@ -88,7 +88,7 @@ const Sidebar = () => {
         </button>
 
         {/* 年のリスト */}
-        <ul className="log-list__year text-2xl font-bold">
+        <ul className="log-list__year text-xl font-bold">
           {Object.entries(archive)
             .sort((a, b) => Number(b[0]) - Number(a[0]))
             .map(([year, months], index) => {
@@ -114,7 +114,7 @@ const Sidebar = () => {
                             <button
                               onClick={() => navigate(`/month/${year}/${month}`)}
                               className={`
-                              block text-white/80 hover:text-white transition ml-auto
+                              block text-white/80 hover:text-white transition ml-auto text-xl
                               ${
                                 isActive
                                   ? 'font-bold text-[#55ebbb] underline underline-offset-2'
@@ -136,8 +136,8 @@ const Sidebar = () => {
       </aside>
 
       {/* SP Header */}
-      <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-primary text-white flex items-center justify-between px-4 z-30 shadow pt-[env(safe-area-inset-top)]">
-        <button onClick={() => navigate('/')} className="font-bold">
+      <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-primary text-white flex items-center justify-between px-4 z-30 shadow pt-[env(safe-area-inset-top)]">
+        <button onClick={() => navigate('/')} className="font-bold text-3xl">
           LIFE LOG
         </button>
         <button onClick={toggleMenu} className="text-3xl">
@@ -160,43 +160,45 @@ const Sidebar = () => {
           </button>
 
           {/* 年月リスト（SPドロップダウン） */}
-          {Object.keys(archive).map((year) => {
-            const isOpen = openYears.includes(year);
+          {Object.entries(archive)
+            .sort((a, b) => Number(b[0]) - Number(a[0]))
+            .map(([year, months], index) => {
+              const isOpen = openYears.includes(year);
 
-            return (
-              <div key={year} className="mb-2">
-                <button
-                  onClick={() => toggleYear(year)}
-                  className="flex items-center w-full justify-end font-semibold border-t pt-2"
-                >
-                  {year}年 ▼
-                </button>
+              return (
+                <div key={index} className="mb-2">
+                  <button
+                    onClick={() => toggleYear(year)}
+                    className="flex items-center w-full justify-end font-semibold border-t pt-2"
+                  >
+                    {year}年 ▼
+                  </button>
 
-                {isOpen && (
-                  <ul className="mt-2 space-y-2">
-                    {archive[year].map((month) => {
-                      const isActive = activeYear === year && activeMonth === month;
-                      return (
-                        <li key={month} className="border-t pt-2 border-dotted">
-                          <button
-                            onClick={() => {
-                              navigate(`/month/${year}/${month}`);
-                              setMenuOpen(false);
-                            }}
-                            className={`block text-white/80 ml-auto hover:text-white
+                  {isOpen && (
+                    <ul className="mt-2 space-y-2">
+                      {months.map((month: string) => {
+                        const isActive = activeYear === year && activeMonth === month;
+                        return (
+                          <li key={month} className="border-t pt-2 border-dotted">
+                            <button
+                              onClick={() => {
+                                navigate(`/month/${year}/${month}`);
+                                setMenuOpen(false);
+                              }}
+                              className={`block text-white/80 ml-auto hover:text-white
                               ${isActive ? 'text-[#55ebbb] font-bold underline' : ''}
                             `}
-                          >
-                            {Number(month)}月
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            );
-          })}
+                            >
+                              {Number(month)}月
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
         </div>
       )}
     </>

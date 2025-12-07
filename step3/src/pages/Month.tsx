@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useLogs } from '../store/useLogs';
+import WeightMiniGraph from '../components/WeightMiniGraph';
 import DailyCard from '../components/DailyCard';
 import AddButton from '../components/AddButton';
 
@@ -16,9 +17,15 @@ const Month = () => {
   return (
     <div className="px-4 py-24 sm:py-24 md:py-4 md:px-4">
       <div className="flex-1">
+        {/* タイトル */}
         <h2 className="text-2xl font-bold mb-4 text-center">
           {year}年 {Number(month)}月 一覧
         </h2>
+
+        {/* 月別のログの見渡す */}
+        <section className="max-w-5xl px-1 sm:px-3 mx-auto mb-7 sm:mb-14">
+          <WeightMiniGraph targetLogs={filteredLogs} />
+        </section>
 
         {/* カード一覧 */}
         <div className="flex flex-wrap justify-center gap-4">

@@ -14,6 +14,7 @@ const categories: Record<string, string> = {
   ウォーキング: 'aerobic',
   筋トレ: 'muscle',
   腹筋: 'muscle',
+  プランク: 'muscle',
   腕立て: 'muscle',
   スクワット: 'muscle',
   ダンベル: 'muscle',
