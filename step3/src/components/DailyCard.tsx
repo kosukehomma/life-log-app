@@ -8,12 +8,98 @@ type Props = {
   log: Log;
 };
 
+// 日付差（日数）を取るユーティリティ
+const dayDiff = (d1: string, d2: string) => {
+  const date1 = new Date(d1);
+  const date2 = new Date(d2);
+  const diff = date1.getTime() - date2.getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+};
+
+// BMIカラー
+const getBmiColor = (bmi: number) => {
+  if (bmi < 18.5) return 'bg-sky-200 text-sky-900';
+  if (bmi < 25) return 'bg-emerald-200 text-emerald-900';
+  if (bmi < 30) return 'bg-yellow-200 text-yellow-900';
+  if (bmi < 35) return 'bg-orange-200 text-orange-900';
+  if (bmi < 40) return 'bg-red-300 text-red-900';
+  return 'bg-red-600 text-white';
+};
+
+const getBmiLabel = (bmi: number) => {
+  if (bmi < 18.5) return 'UW';
+  if (bmi < 25) return 'N';
+  if (bmi < 30) return 'P1';
+  if (bmi < 35) return 'O1';
+  if (bmi < 40) return 'O2';
+  return 'O3';
+};
+
 const DailyCard = ({ log }: Props) => {
   const navigate = useNavigate();
   const deleteLog = useLogs((s) => s.deleteLog);
+  const logs = useLogs((s) => s.logs);
+
+  // 先週比計算
+  const sorted = [...logs].sort((a, b) => (a.date > b.date ? 1 : -1));
+  const currentIndex = sorted.findIndex((l) => l.id === log.id);
+
+  const targetDate = log.date;
+  const oneWeekBefore = new Date(targetDate);
+  oneWeekBefore.setDate(oneWeekBefore.getDate() - 7);
+
+  let weeklyBase: Log | null = null;
+  let minDiff = Infinity;
+
+  sorted.forEach((l) => {
+    const diff = Math.abs(dayDiff(targetDate, l.date));
+    if (diff <= 2) {
+      // ±2日以内で最も近い日
+      if (Math.abs(dayDiff(oneWeekBefore.toISOString().slice(0, 10), l.date)) < minDiff) {
+        minDiff = Math.abs(dayDiff(oneWeekBefore.toISOString().slice(0, 10), l.date));
+        weeklyBase = l;
+      }
+    }
+  });
+
+  // "先週比ログ" が見つからない場合 → 前回ログ
+  const prevLog = weeklyBase ?? (currentIndex > 0 ? sorted[currentIndex - 1] : null);
+
+  const diff = prevLog && typeof prevLog.weight === 'number' ? log.weight - prevLog.weight : null;
+
+  const diffDisplay = diff !== null ? `${diff > 0 ? '+' : ''}${diff.toFixed(1)}kg` : '--';
+
+  const isLoss = diff !== null && diff < 0;
+
+  const badgeColor = isLoss ? 'bg-emerald-500' : 'bg-orange-500';
+  const badgeIcon = isLoss ? '↘︎' : '↗︎';
+
+  const badgeLabel = weeklyBase ? '先' : '前';
+
+  // BMI計算
+  const heightM = 1.72;
+  const bmi = parseFloat((log.weight / (heightM * heightM)).toFixed(1));
+  const bmiLabel = getBmiLabel(bmi);
+  const bmiColor = getBmiColor(bmi);
 
   return (
     <div className="w-full max-w-full sm:max-w-[48%] md:max-w-[280px] bg-white rounded-2xl border border-b border-slate-300 shadow-lg p-4 flex flex-col gap-4">
+      {/* 進捗バッジ */}
+      <div className="flex flex-row flex-wrap gap-1 mb-1">
+        {/* 体重変化 */}
+        {diff !== null && (
+          <span
+            className={`flex items-center text-white text-xs px-2 py-0.5 rounded-full shadow ${badgeColor}`}
+          >
+            {badgeIcon} <b className="ml-0.5">{diffDisplay}</b> ({badgeLabel})
+          </span>
+        )}
+        {/* BMI */}
+        <span className={`flex items-center text-xs px-2 py-0.5 rounded-full border ${bmiColor}`}>
+          BMI <b className="mx-1">{bmi}</b> ({bmiLabel})
+        </span>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col gap-1 border-b pb-1">
         <p className="text-lg font-semibold text-gray-700 tracking-wide">{log.date}</p>

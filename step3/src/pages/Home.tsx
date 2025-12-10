@@ -46,19 +46,22 @@ const Home = () => {
 
     if (bmi < 18.5) {
       bmiBadgeClass = 'bg-blue-100 text-blue-700';
-      bmiLabel = '低体重';
+      bmiLabel = 'UW';
     } else if (bmi < 25) {
       bmiBadgeClass = 'bg-green-100 text-green-700';
-      bmiLabel = '普通';
+      bmiLabel = 'N';
     } else if (bmi < 30) {
-      bmiBadgeClass = 'bg-orange-100 text-orange-700';
-      bmiLabel = '肥満1度';
+      bmiBadgeClass = 'bg-yellow-100 text-yellow-700';
+      bmiLabel = 'P1';
     } else if (bmi < 35) {
-      bmiBadgeClass = 'bg-red-100 text-red-700';
-      bmiLabel = '肥満2度';
+      bmiBadgeClass = 'bg-orange-100 text-orange-700';
+      bmiLabel = 'O1';
+    } else if (bmi < 40) {
+      bmiBadgeClass = 'bg-red-100 text-red-600';
+      bmiLabel = 'O2';
     } else {
       bmiBadgeClass = 'bg-red-200 text-red-800';
-      bmiLabel = '肥満3度以上';
+      bmiLabel = 'O3';
     }
   }
 

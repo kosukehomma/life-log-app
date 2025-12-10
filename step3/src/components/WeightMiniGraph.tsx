@@ -1,37 +1,58 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useLogs } from '../store/useLogs';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   targetLogs?: ReturnType<typeof useLogs>['logs'];
 };
 
 const WeightMiniGraph = ({ targetLogs }: Props) => {
+  const navigate = useNavigate();
   const allLogs = useLogs((state) => state.logs);
 
   // データは Home/Monthで与えられたもの優先
   const logs = targetLogs ?? [...allLogs].sort((a, b) => (a.date > b.date ? 1 : -1));
 
   // 直近7件
-  const slicedLogs = logs.slice(-7);
+  const slicedLogs = targetLogs ? logs : logs.slice(-7); // Homeは最大7件
 
   const data = slicedLogs.map((l) => ({
-    date: l.date.slice(5), // MM-DD 表記
+    date: l.date,
+    displayDate: l.date.slice(5), // MM-DD
     weight: l.weight,
     fat: l.fat,
   }));
+
+  const tickInterval =
+    data.length <= 7
+      ? 0 // 全表示
+      : data.length <= 14
+      ? 1 // 半分
+      : 2; // 1/3
+
+  const handleClickPoint = (payload: any) => {
+    if (!payload?.activePayload?.length) return;
+    const clicked = payload.activePayload[0].payload;
+    navigate(`/month/${clicked.date.slice(0, 4)}/${clicked.date.slice(5, 7)}`);
+    // 月画面に遷移後、該当カード位置にスクロールは後で追加
+  };
 
   return (
     <div className="w-full h-48 px-4 pt-2 pb-8 bg-secondary/10 rounded-lg shadow">
       <h2 className="font-semibold text-lg mb-2 text-center">体重推移（直近7件）</h2>
 
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
-          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+        <LineChart
+          data={data}
+          onClick={handleClickPoint} // データ点クリックで遷移
+        >
+          <XAxis dataKey="displayDate" interval={tickInterval} tick={{ fontSize: 12 }} />
           <YAxis hide />
           <Tooltip
             formatter={(value: any, name: any) =>
               name === 'weight' ? [`${value}kg`, '体重'] : [`${value}%`, '体脂肪率']
             }
+            labelFormatter={(label: string) => `${label}`}
           />
 
           {/* 体重 → PrimaryColorで濃い線 */}

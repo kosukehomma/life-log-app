@@ -1,4 +1,10 @@
-export const workoutCategories: Record<string, { category: string; icon: string }> = {
+// ------------------------------------
+// 運動カテゴリのマスターデータ（共通辞書）
+// ------------------------------------
+export const workoutCategories: Record<
+  string,
+  { category: 'aerobic' | 'muscle' | 'boxing' | 'stretch' | 'default'; icon: string }
+> = {
   // 有酸素運動
   ランニング: { category: 'aerobic', icon: '🏃‍♂️' },
   ジョギング: { category: 'aerobic', icon: '🏃‍♂️' },
@@ -29,22 +35,41 @@ export const workoutCategories: Record<string, { category: string; icon: string 
   ストレッチ: { category: 'stretch', icon: '✨' },
 };
 
-export const getWorkoutStyle = (text: string) => {
+// ------------------------------------------------------
+// 指定テキストをカテゴリ判定
+// ------------------------------------------------------
+export const getWorkoutCategory = (text: string) => {
   const key = Object.keys(workoutCategories).find((k) => text.includes(k));
-  const item = key ? workoutCategories[key] : null;
+
+  if (!key) return 'default';
+  return workoutCategories[key]?.category ?? 'default';
+};
+
+// ------------------------------------------------------
+// 指定テキストからアイコンを取得
+// ------------------------------------------------------
+export const getWorkoutIcon = (text: string) => {
+  const key = Object.keys(workoutCategories).find((k) => text.includes(k));
+
+  if (!key) return '🏋️‍♀️';
+  return workoutCategories[key]?.icon ?? '🏋️‍♀️';
+};
+
+// DailyCard 用のスタイルまとめ
+export const getWorkoutStyle = (text: string) => {
+  const category = getWorkoutCategory(text);
+  const icon = getWorkoutIcon(text);
 
   const color =
-    item?.category === 'aerobic'
+    category === 'aerobic'
       ? 'bg-green-500'
-      : item?.category === 'muscle'
+      : category === 'muscle'
       ? 'bg-orange-500'
-      : item?.category === 'boxing'
+      : category === 'boxing'
       ? 'bg-blue-400'
-      : item?.category === 'stretch'
+      : category === 'stretch'
       ? 'bg-purple-400'
       : 'bg-gray-400';
-
-  const icon = item?.icon ?? '🏋️‍♀️';
 
   return { color, icon };
 };

@@ -1,37 +1,16 @@
 import React, { useState, useCallback, useRef } from 'react';
+import { getWorkoutCategory } from '../utils/workoutCategory';
 
 type FormWorkTagProps = {
   value: string[];
   onChange: (tags: string[]) => void;
 };
 
-// カテゴリ判定
-const categories: Record<string, string> = {
-  ランニング: 'aerobic',
-  ジョギング: 'aerobic',
-  縄跳び: 'aerobic',
-  ロープワーク: 'aerobic',
-  ウォーキング: 'aerobic',
-  筋トレ: 'muscle',
-  腹筋: 'muscle',
-  プランク: 'muscle',
-  腕立て: 'muscle',
-  スクワット: 'muscle',
-  ダンベル: 'muscle',
-  ベンチプレス: 'muscle',
-  デッドリフト: 'muscle',
-  ラットプル: 'muscle',
-  シャドウ: 'boxing',
-  シャドー: 'boxing',
-  サンドバッグ: 'boxing',
-  ミット: 'boxing',
-  ストレッチ: 'stretch',
-};
-
 const FormWorkTag = ({ value, onChange }: FormWorkTagProps) => {
   const [input, setInput] = useState('');
   const isComposingRef = useRef(false);
 
+  // 追加
   const addTag = useCallback(() => {
     const trimmed = input.trim();
     if (!trimmed || value.includes(trimmed)) return;
@@ -40,6 +19,7 @@ const FormWorkTag = ({ value, onChange }: FormWorkTagProps) => {
     setInput('');
   }, [input, value, onChange]);
 
+  // Enterでタグ追加
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (isComposingRef.current) return;
     if (e.key === 'Enter') {
@@ -48,36 +28,31 @@ const FormWorkTag = ({ value, onChange }: FormWorkTagProps) => {
     }
   };
 
+  // 削除
   const removeTag = (index: number) => {
     onChange(value.filter((_, i) => i !== index));
   };
 
-  const getCategory = (text: string) => {
-    const lower = text.toLowerCase();
-    const entries = Object.entries(categories);
+  // カテゴリごとのバッジ色（共通定義に統一）
+  const getColorByCategory = (tag: string) => {
+    const cat = getWorkoutCategory(tag);
 
-    for (const [keyword, cat] of entries) {
-      if (lower.includes(keyword.toLowerCase())) {
-        return cat;
-      }
-    }
-    return 'default';
+    return cat === 'aerobic'
+      ? 'bg-green-500'
+      : cat === 'muscle'
+      ? 'bg-orange-500'
+      : cat === 'boxing'
+      ? 'bg-blue-400'
+      : cat === 'stretch'
+      ? 'bg-purple-400'
+      : 'bg-gray-500';
   };
 
   return (
     <div className="flex flex-wrap items-center gap-2 p-2 border rounded-md">
       {value.map((tag, i) => {
-        const category = getCategory(tag);
-        const color =
-          category === 'aerobic'
-            ? 'bg-green-500'
-            : category === 'muscle'
-            ? 'bg-orange-500'
-            : category === 'boxing'
-            ? 'bg-blue-500'
-            : category === 'stretch'
-            ? 'bg-purple-500'
-            : 'bg-gray-500';
+        const color = getColorByCategory(tag);
+
         return (
           <span
             key={`${tag}-${i}`}
