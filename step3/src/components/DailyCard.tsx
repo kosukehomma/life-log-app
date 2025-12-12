@@ -16,16 +16,7 @@ const dayDiff = (d1: string, d2: string) => {
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 };
 
-// BMIカラー
-const getBmiColor = (bmi: number) => {
-  if (bmi < 18.5) return 'bg-sky-200 text-sky-900';
-  if (bmi < 25) return 'bg-emerald-200 text-emerald-900';
-  if (bmi < 30) return 'bg-yellow-200 text-yellow-900';
-  if (bmi < 35) return 'bg-orange-200 text-orange-900';
-  if (bmi < 40) return 'bg-red-300 text-red-900';
-  return 'bg-red-600 text-white';
-};
-
+// BMIラベル
 const getBmiLabel = (bmi: number) => {
   if (bmi < 18.5) return 'UW';
   if (bmi < 25) return 'N';
@@ -80,22 +71,23 @@ const DailyCard = ({ log }: Props) => {
   const heightM = 1.72;
   const bmi = parseFloat((log.weight / (heightM * heightM)).toFixed(1));
   const bmiLabel = getBmiLabel(bmi);
-  const bmiColor = getBmiColor(bmi);
 
   return (
     <div className="w-full max-w-full sm:max-w-[48%] md:max-w-[280px] bg-white rounded-2xl border border-b border-slate-300 shadow-lg p-4 flex flex-col gap-4">
       {/* 進捗バッジ */}
-      <div className="flex flex-row flex-wrap gap-1 mb-1">
+      <div className="flex flex-row flex-wrap gap-2 sm:gap-3 items-baseline mb-1">
         {/* 体重変化 */}
         {diff !== null && (
           <span
-            className={`flex items-center text-white text-xs px-2 py-0.5 rounded-full shadow ${badgeColor}`}
+            className={`flex w-fit items-center text-white text-xs px-3 py-1 rounded-full shadow ${badgeColor}`}
           >
             {badgeIcon} <b className="ml-0.5">{diffDisplay}</b> ({badgeLabel})
           </span>
         )}
         {/* BMI */}
-        <span className={`flex items-center text-xs px-2 py-0.5 rounded-full border ${bmiColor}`}>
+        <span
+          className={`flex w-fit items-center text-xs font-medium px-2 py-0.5 bg-primary/20 text-primary border border-primary/30 rounded-md`}
+        >
           BMI <b className="mx-1">{bmi}</b> ({bmiLabel})
         </span>
       </div>
@@ -130,7 +122,7 @@ const DailyCard = ({ log }: Props) => {
               return (
                 <span
                   key={i}
-                  className={`flex items-center gap-1 px-2 py-0.5 text-xs rounded-lg text-white ${color} whitespace-nowrap drop-shadow-md`}
+                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded-lg text-white/90 ${color} whitespace-nowrap drop-shadow-md leading-tight`}
                 >
                   <span>{icon}</span>
                   {item}
