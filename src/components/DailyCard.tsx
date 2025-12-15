@@ -56,7 +56,10 @@ const DailyCard = ({ log }: Props) => {
   // "先週比ログ" が見つからない場合 → 前回ログ
   const prevLog = weeklyBase ?? (currentIndex > 0 ? sorted[currentIndex - 1] : null);
 
-  const diff = prevLog && typeof prevLog.weight === 'number' ? log.weight - prevLog.weight : null;
+  const diff =
+    typeof log.weight === 'number' && typeof prevLog?.weight === 'number'
+      ? log.weight - prevLog.weight
+      : null;
 
   const diffDisplay = diff !== null ? `${diff > 0 ? '+' : ''}${diff.toFixed(1)}kg` : '--';
 
@@ -69,8 +72,11 @@ const DailyCard = ({ log }: Props) => {
 
   // BMI計算
   const heightM = 1.72;
-  const bmi = parseFloat((log.weight / (heightM * heightM)).toFixed(1));
-  const bmiLabel = getBmiLabel(bmi);
+  const bmi =
+    typeof log.weight === 'number'
+      ? parseFloat((log.weight / (heightM * heightM)).toFixed(1))
+      : null;
+  const bmiLabel = bmi !== null ? getBmiLabel(bmi) : '--';
 
   return (
     <div className="w-full max-w-full sm:max-w-[48%] md:max-w-[280px] bg-white rounded-2xl border border-b border-slate-300 shadow-lg p-4 flex flex-col gap-4">
@@ -101,11 +107,11 @@ const DailyCard = ({ log }: Props) => {
             <span className="text-[9px] text-gray-400 tracking-wide mr-1 uppercase">weight</span>
             <span className="text-2xl font-bold text-gray-900">{log.weight}kg</span>
           </div>
-          {typeof log.fat === 'number' && (
+          {typeof log.body_fat === 'number' && (
             <div className="flex items-baseline whitespace-nowrap">
               <span className="text-[9px] text-gray-400 tracking-wide mr-1 uppercase">fat</span>
               <span className="text-xl font-semibold text-sky-800">
-                {log.fat ? `${log.fat}%` : '--'}
+                {log.body_fat ? `${log.body_fat}%` : '--'}
               </span>
             </div>
           )}
@@ -113,11 +119,11 @@ const DailyCard = ({ log }: Props) => {
       </div>
 
       {/* Workout */}
-      {log.workout.length > 0 && (
+      {log.workout_tags && log.workout_tags.length > 0 && (
         <div>
           <p className="text-xs font-semibold text-gray-700 mb-1 tracking-wide">WORKOUT</p>
           <div className="flex flex-wrap gap-1.5">
-            {log.workout.map((item, i) => {
+            {log.workout_tags.map((item, i) => {
               const { color, icon } = getWorkoutStyle(item);
               return (
                 <span
@@ -136,21 +142,23 @@ const DailyCard = ({ log }: Props) => {
       {/* MealCarousel */}
       <div>
         <p className="text-xs font-semibold text-gray-700 mb-1 tracking-wide">MEAL</p>
-        <MealCarousel meals={log.meals} logId={log.id} />
+        <MealCarousel meals={log.meals || {}} logId={log.id} />
       </div>
 
       {/* Comment */}
-      {log.comment && (
+      {log.memo && (
         <div className="border-t pt-1">
           <p className="text-xs font-semibold text-gray-700 mb-0.5 tracking-wide">COMMENT</p>
-          <p className="text-xs text-gray-600 leading-5">{log.comment}</p>
+          <p className="text-xs text-gray-600 leading-5">{log.memo}</p>
         </div>
       )}
 
       <div className="flex justify-end gap-2 pt-1">
         <button
           type="button"
-          onClick={() => navigate(`/edit/${log.id}`)}
+          onClick={() => {
+            void navigate(`/edit/${log.id}`);
+          }}
           className="px-3 py-1 text-xs rounded-md bg-primary text-white font-medium"
         >
           編集

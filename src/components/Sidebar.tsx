@@ -74,14 +74,17 @@ const Sidebar = () => {
       >
         {/* Home */}
         <h1 className="font-bold text-4xl mb-6 text-center">
-          <button onClick={() => navigate('/')} className="no-underline text-white hover:underline">
+          <button
+            onClick={() => void navigate('/')}
+            className="no-underline text-white hover:underline"
+          >
             LIFE LOG
           </button>
         </h1>
 
         {/* My Page */}
         <button
-          onClick={() => navigate('/mypage')}
+          onClick={() => void navigate('/mypage')}
           className="block text-xl font-bold mb-6 ml-auto hover:underline"
         >
           My Page
@@ -112,7 +115,7 @@ const Sidebar = () => {
                         return (
                           <li key={month} className="mt-2">
                             <button
-                              onClick={() => navigate(`/month/${year}/${month}`)}
+                              onClick={() => void navigate(`/month/${year}/${month}`)}
                               className={`
                               block text-white/80 hover:text-white transition ml-auto text-xl
                               ${
@@ -137,7 +140,7 @@ const Sidebar = () => {
 
       {/* SP Header */}
       <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-primary text-white flex items-center justify-between px-4 z-30 shadow pt-[env(safe-area-inset-top)]">
-        <button onClick={() => navigate('/')} className="font-bold text-3xl">
+        <button onClick={() => void navigate('/')} className="font-bold text-3xl">
           LIFE LOG
         </button>
         <button onClick={toggleMenu} className="text-3xl">
@@ -151,7 +154,7 @@ const Sidebar = () => {
           {/* My Page */}
           <button
             onClick={() => {
-              navigate('/mypage');
+              void navigate('/mypage');
               setMenuOpen(false);
             }}
             className="block text-lg font-semibold mb-4 ml-auto hover:underline"
@@ -182,7 +185,7 @@ const Sidebar = () => {
                           <li key={month} className="border-t pt-2 border-dotted">
                             <button
                               onClick={() => {
-                                navigate(`/month/${year}/${month}`);
+                                void navigate(`/month/${year}/${month}`);
                                 setMenuOpen(false);
                               }}
                               className={`block text-white/80 ml-auto hover:text-white

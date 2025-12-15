@@ -8,11 +8,11 @@ import Month from './pages/Month';
 import AddLog from './pages/AddLog';
 import EditLog from './pages/Edit';
 import MyPage from './pages/MyPage';
+import Login from './pages/Login';
+
+import { AuthGuard } from './components/AuthGuard';
 
 const App = () => {
-  // const logs = useLogs((state) => state.logs);
-  // console.log('🔥 LOG DATA:', logs);
-
   useEffect(() => {
     useLogs.getState().loadFromStorage();
   }, []);
@@ -20,11 +20,50 @@ const App = () => {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/month/:year/:month" element={<Month />} />
-        <Route path="/add" element={<AddLog />} />
-        <Route path="/edit/:logId" element={<EditLog />} />
-        <Route path="/mypage" element={<MyPage />} />
+        {/* ログインページはガードなし */}
+        <Route path="/login" element={<Login />} />
+
+        {/* 以下、AuthGuard を適用 */}
+        <Route
+          path="/"
+          element={
+            <AuthGuard>
+              <Home />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/month/:year/:month"
+          element={
+            <AuthGuard>
+              <Month />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/add"
+          element={
+            <AuthGuard>
+              <AddLog />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/edit/:logId"
+          element={
+            <AuthGuard>
+              <EditLog />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/mypage"
+          element={
+            <AuthGuard>
+              <MyPage />
+            </AuthGuard>
+          }
+        />
       </Routes>
     </Layout>
   );

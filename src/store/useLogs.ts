@@ -9,12 +9,15 @@ const save = (logs: Log[]) => {
 
 export type LogsState = {
   logs: Log[];
+
   loadFromStorage: () => void;
+
   addLog: (newLog: Log) => void;
   updateLog: (updatedLog: Log) => void;
-  deleteLog: (logId: number) => void;
-  updateMeal: (logId: number, mealType: MealType, updatedMeal: Meal) => void;
-  deleteMeal: (logId: number, mealType: MealType) => void;
+  deleteLog: (logId: string) => void;
+
+  updateMeal: (logId: string, mealType: MealType, updatedMeal: Meal) => void;
+  deleteMeal: (logId: string, mealType: MealType) => void;
 };
 
 export const useLogs = create<LogsState>((set, get) => ({
@@ -57,7 +60,7 @@ export const useLogs = create<LogsState>((set, get) => ({
       return {
         ...log,
         meals: {
-          ...log.meals,
+          ...(log.meals ?? {}),
           [mealType]: updatedMeal,
         },
       };
@@ -69,12 +72,12 @@ export const useLogs = create<LogsState>((set, get) => ({
   deleteMeal: (logId, mealType) => {
     const updated = get().logs.map((log) => {
       if (log.id !== logId) return log;
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [mealType]: _, ...rest } = log.meals ?? {};
       return {
         ...log,
-        meals: {
-          ...log.meals,
-          [mealType]: undefined,
-        },
+        meals: rest,
       };
     });
     save(updated);

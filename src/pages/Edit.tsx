@@ -46,19 +46,19 @@ const EditLog = () => {
     const idNum = Number(logId);
     if (Number.isNaN(idNum)) return;
 
-    const found = logs.find((l) => l.id === idNum) ?? null;
+    const found = logs.find((l) => l.id === logId) ?? null;
     if (!found) return;
 
     setTargetLog(found);
     setDate(found.date);
-    setWeight(found.weight);
-    setFat(found.fat ?? '');
-    setWorkout(found.workout);
+    setWeight(found?.weight ?? '');
+    setFat(found?.body_fat ?? '');
+    setWorkout(found?.workout_tags ?? []);
     setMeals({
       ...emptyMeals,
       ...found.meals,
     });
-    setComment(found.comment);
+    setComment(found?.memo ?? '');
     setLoading(false);
   }, [logs, logId, loadFromStorage]);
 
@@ -89,14 +89,14 @@ const EditLog = () => {
       ...targetLog,
       date,
       weight: Number(weight),
-      fat: fat === '' ? undefined : Number(fat),
-      workout,
+      body_fat: fat === '' ? null : Number(fat),
+      workout_tags: workout,
       meals,
-      comment,
+      memo: comment,
     };
 
     updateLog(updated);
-    navigate('/');
+    void navigate('/');
   };
 
   const handleDeleteLog = () => {
@@ -104,7 +104,7 @@ const EditLog = () => {
     if (!confirm('この1日のログを削除しますか？')) return;
 
     deleteLog(targetLog.id);
-    navigate('/');
+    void navigate('/');
   };
 
   if (!logId) {
@@ -121,7 +121,7 @@ const EditLog = () => {
       <div className="flex items-center justify-between p-4 border-b">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => void navigate(-1)}
           className="text-primary font-semibold flex items-center gap-1"
         >
           <span className="text-lg">←</span>

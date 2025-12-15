@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuthStore } from '../store/authStore';
 
 const MyPage = () => {
   const [nickname, setNickname] = useState('');
@@ -91,6 +92,14 @@ const MyPage = () => {
             保存しました！✔︎
           </div>
         )}
+
+        {/* ログアウト */}
+        <button
+          onClick={void useAuthStore.getState().logout}
+          className="w-full text-white py-2 rounded font-bold bg-red-500 mt-3"
+        >
+          ログアウト
+        </button>
       </div>
     </div>
   );

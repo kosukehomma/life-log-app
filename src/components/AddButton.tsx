@@ -5,7 +5,7 @@ const AddButton = () => {
 
   return (
     <button
-      onClick={() => navigate('/add')}
+      onClick={() => void navigate('/add')}
       className="
         fixed bottom-6 right-6
         bg-primary text-white

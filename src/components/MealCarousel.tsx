@@ -12,7 +12,7 @@ const labels = {
 
 type Props = {
   meals: Meals;
-  logId?: number | 'new';
+  logId?: string;
   isNew?: boolean;
 };
 
@@ -72,7 +72,7 @@ const MealCarousel = ({ meals, logId }: Props) => {
               <div
                 className="relative group overflow-hidden rounded-xl border border-slate-200 bg-gray-100 shadow-sm aspect-[14/9] flex items-center justify-center cursor-pointer"
                 onClick={() =>
-                  navigate(`/edit/${logId}?meal=${type}`, {
+                  void navigate(`/edit/${logId}?meal=${type}`, {
                     state: { focus: 'meal', mealType: type },
                   })
                 }
@@ -81,9 +81,9 @@ const MealCarousel = ({ meals, logId }: Props) => {
                 <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-white/90 to-transparent z-10" />
                 <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-white/90 to-transparent z-10" />
 
-                {meal?.imageUrl ? (
+                {meal?.image_url ? (
                   <img
-                    src={meal.imageUrl}
+                    src={meal.image_url}
                     className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
@@ -108,7 +108,7 @@ const MealCarousel = ({ meals, logId }: Props) => {
               </div>
 
               {/* Memo */}
-              <p className="text-xs mt-1 text-gray-700 line-clamp-2">{meal?.memo || ''}</p>
+              <p className="text-xs mt-1 text-gray-700 line-clamp-2">{meal?.description || ''}</p>
             </div>
           );
         })}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLogs } from '../store/useLogs';
 import FormWorkTag from '../components/FormWorkTag';
 import AddMealCarousel from '../components/AddMealCarousel';
-import type { Meal, MealType } from '../types';
+import type { Meal, MealType, Log } from '../types';
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -28,18 +28,19 @@ const AddLog = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newLog = {
-      id: Date.now(),
+    const newLog: Log = {
+      id: crypto.randomUUID(),
+      user_id: 'local',
       date,
       weight: Number(weight),
-      fat: fat === '' ? null : Number(fat),
-      workout,
+      body_fat: fat === '' ? null : Number(fat),
+      workout_tags: workout,
       meals,
-      comment,
+      memo: comment,
     };
 
     addLog(newLog);
-    navigate('/');
+    void navigate('/');
   };
 
   const updateMeal = (type: MealType, newMeal: Meal) => {

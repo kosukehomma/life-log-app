@@ -47,8 +47,8 @@ const AddMealCarousel = ({ meals, onChange, initialType }: Props) => {
     onChange(currentType, {
       id: `${Date.now()}-${currentType}`,
       type: currentType,
-      imageUrl: meal?.imageUrl ?? null,
-      memo: meal?.memo ?? '',
+      image_url: meal?.image_url ?? null,
+      description: meal?.description ?? '',
       created_at: meal?.created_at ?? new Date().toISOString(),
       ...data,
     });
@@ -58,7 +58,7 @@ const AddMealCarousel = ({ meals, onChange, initialType }: Props) => {
     const reader = new FileReader();
     reader.onload = () => {
       updateMeal({
-        imageUrl: reader.result as string,
+        image_url: reader.result as string,
       });
     };
     reader.readAsDataURL(file);
@@ -90,8 +90,8 @@ const AddMealCarousel = ({ meals, onChange, initialType }: Props) => {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {meal?.imageUrl ? (
-          <img src={meal.imageUrl} className="w-full h-full object-cover" />
+        {meal?.image_url ? (
+          <img src={meal.image_url} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 px-2 text-center">
             <strong>{labels[currentType]}</strong>の画像を追加
@@ -112,16 +112,16 @@ const AddMealCarousel = ({ meals, onChange, initialType }: Props) => {
       <textarea
         className="w-full border p-2 rounded-lg text-sm"
         placeholder={`${labels[currentType]}のメモ（64文字以内）`}
-        value={meal?.memo ?? ''}
+        value={meal?.description ?? ''}
         maxLength={64}
-        onChange={(e) => updateMeal({ memo: e.target.value })}
+        onChange={(e) => updateMeal({ description: e.target.value })}
       />
       <div
         className={`text-xs text-right mt-1 ${
-          (meal?.memo?.length ?? 0) >= 64 ? 'text-red-600' : 'text-gray-500'
+          (meal?.description?.length ?? 0) >= 64 ? 'text-red-600' : 'text-gray-500'
         }`}
       >
-        {meal?.memo?.length ?? 0}/64
+        {meal?.description?.length ?? 0}/64
       </div>
     </div>
   );

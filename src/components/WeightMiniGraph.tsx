@@ -1,9 +1,10 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useLogs } from '../store/useLogs';
 import { useNavigate } from 'react-router-dom';
+import type { Log } from '../types';
 
 type Props = {
-  targetLogs?: ReturnType<typeof useLogs>['logs'];
+  targetLogs?: Log[];
 };
 
 const WeightMiniGraph = ({ targetLogs }: Props) => {
@@ -16,11 +17,11 @@ const WeightMiniGraph = ({ targetLogs }: Props) => {
   // 直近7件
   const slicedLogs = targetLogs ? logs : logs.slice(-7); // Homeは最大7件
 
-  const data = slicedLogs.map((l) => ({
+  const data = slicedLogs.map((l: Log) => ({
     date: l.date,
     displayDate: l.date.slice(5), // MM-DD
     weight: l.weight,
-    fat: l.fat,
+    body_fat: l.body_fat,
   }));
 
   const tickInterval =
@@ -30,10 +31,16 @@ const WeightMiniGraph = ({ targetLogs }: Props) => {
       ? 1 // 半分
       : 2; // 1/3
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleClickPoint = (payload: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (!payload?.activePayload?.length) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
     const clicked = payload.activePayload[0].payload;
-    navigate(`/month/${clicked.date.slice(0, 4)}/${clicked.date.slice(5, 7)}`);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    void navigate(`/month/${clicked.date.slice(0, 4)}/${clicked.date.slice(5, 7)}`);
     // 月画面に遷移後、該当カード位置にスクロールは後で追加
   };
 
@@ -49,6 +56,7 @@ const WeightMiniGraph = ({ targetLogs }: Props) => {
           <XAxis dataKey="displayDate" interval={tickInterval} tick={{ fontSize: 12 }} />
           <YAxis hide />
           <Tooltip
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             formatter={(value: any, name: any) =>
               name === 'weight' ? [`${value}kg`, '体重'] : [`${value}%`, '体脂肪率']
             }
