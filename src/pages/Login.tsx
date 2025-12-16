@@ -41,7 +41,7 @@ const Login = () => {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button onClick={void handleLogin}>ログイン</button>
+      <button onClick={() => void handleLogin()}>ログイン</button>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>

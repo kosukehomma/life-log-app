@@ -3,21 +3,18 @@ import type { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
 type AuthState = {
-  user: User | null;
-  loading: boolean;
+  user: User | null | undefined;
   fetchUser: () => Promise<void>;
   logout: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  loading: true,
+  user: undefined,
 
   fetchUser: async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    set({ user, loading: false });
+    const { data } = await supabase.auth.getUser();
+    set({ user: data.user ?? null });
+    console.log(data.user?.id);
   },
 
   logout: async () => {

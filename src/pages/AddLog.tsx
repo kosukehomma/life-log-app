@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLogs } from '../store/useLogs';
 import FormWorkTag from '../components/FormWorkTag';
 import AddMealCarousel from '../components/AddMealCarousel';
-import type { Meal, MealType, Log } from '../types';
+import type { Meal, MealType } from '../types';
+import { supabase } from '../lib/supabase';
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -18,6 +19,8 @@ const AddLog = () => {
   const navigate = useNavigate();
   const addLog = useLogs((s) => s.addLog);
 
+  const [userId, setUserId] = useState<string | null>(null);
+
   const [date, setDate] = useState<string>(today);
   const [weight, setWeight] = useState<number | ''>('');
   const [fat, setFat] = useState<number | ''>('');
@@ -25,12 +28,21 @@ const AddLog = () => {
   const [meals, setMeals] = useState<Record<MealType, Meal | undefined>>(emptyMeals);
   const [comment, setComment] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // user_id を取得（副作用）
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUserId(data.user?.id ?? null);
+    };
+    void fetchUser();
+  }, []);
 
-    const newLog: Log = {
-      id: crypto.randomUUID(),
-      user_id: 'local',
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId) return;
+
+    const newLog = {
+      user_id: userId,
       date,
       weight: Number(weight),
       body_fat: fat === '' ? null : Number(fat),
@@ -39,7 +51,7 @@ const AddLog = () => {
       memo: comment,
     };
 
-    addLog(newLog);
+    await addLog(newLog);
     void navigate('/');
   };
 
@@ -57,7 +69,13 @@ const AddLog = () => {
         <div className="w-12" />
       </div>
 
-      <form onSubmit={handleSubmit} className="flex-1 p-4 space-y-8">
+      <form
+        id="add-log-form"
+        onSubmit={(e) => {
+          void handleSubmit(e);
+        }}
+        className="flex-1 p-4 space-y-8"
+      >
         {/* 日付・体重・体脂肪率 */}
         <section className="space-y-4">
           <h3 className="text-lg font-bold border-l-4 border-primary pl-2">基本情報</h3>
@@ -136,8 +154,7 @@ const AddLog = () => {
       <div className="sticky bottom-0 bg-white border-t p-4 flex gap-4 shadow-[0_-4px_10px_rgba(0,0,0,0.08)]">
         <button
           type="submit"
-          formAction=""
-          onClick={handleSubmit}
+          form="add-log-form"
           className="flex-1 py-2 bg-primary text-white rounded-lg font-semibold"
         >
           保存

@@ -1,86 +1,31 @@
 import { create } from 'zustand';
-import type { Log, Meal, MealType } from '../types';
-
-const STORAGE_KEY = 'life-log-logs';
-
-const save = (logs: Log[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
-};
+import type { Log } from '../types';
+import { insertLog, fetchLogs } from '../lib/api/logs';
 
 export type LogsState = {
   logs: Log[];
-
-  loadFromStorage: () => void;
-
-  addLog: (newLog: Log) => void;
-  updateLog: (updatedLog: Log) => void;
-  deleteLog: (logId: string) => void;
-
-  updateMeal: (logId: string, mealType: MealType, updatedMeal: Meal) => void;
-  deleteMeal: (logId: string, mealType: MealType) => void;
+  isLoading: boolean;
+  loadLogs: () => Promise<void>;
+  addLog: (newLog: Omit<Log, 'id'>) => Promise<void>;
 };
 
-export const useLogs = create<LogsState>((set, get) => ({
+export const useLogs = create<LogsState>((set) => ({
   logs: [],
+  isLoading: false,
 
-  // --- ローカルストレージ読み込み
-  loadFromStorage: () => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-
+  loadLogs: async () => {
+    set({ isLoading: true });
     try {
-      const parsed = JSON.parse(raw) as Log[];
-      set({ logs: parsed });
-    } catch (e) {
-      console.error('failed to parse logs from localStorage', e);
+      const logs = await fetchLogs();
+      set({ logs });
+    } finally {
+      set({ isLoading: false });
     }
   },
 
-  addLog: (newLog) => {
-    const updated = [...get().logs, newLog];
-    save(updated);
-    set({ logs: updated });
-  },
-
-  updateLog: (updatedLog) => {
-    const updated = get().logs.map((log) => (log.id === updatedLog.id ? updatedLog : log));
-    save(updated);
-    set({ logs: updated });
-  },
-
-  deleteLog: (logId) => {
-    const updated = get().logs.filter((log) => log.id !== logId);
-    save(updated);
-    set({ logs: updated });
-  },
-
-  updateMeal: (logId, mealType, updatedMeal) => {
-    const updated = get().logs.map((log) => {
-      if (log.id !== logId) return log;
-      return {
-        ...log,
-        meals: {
-          ...(log.meals ?? {}),
-          [mealType]: updatedMeal,
-        },
-      };
-    });
-    save(updated);
-    set({ logs: updated });
-  },
-
-  deleteMeal: (logId, mealType) => {
-    const updated = get().logs.map((log) => {
-      if (log.id !== logId) return log;
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [mealType]: _, ...rest } = log.meals ?? {};
-      return {
-        ...log,
-        meals: rest,
-      };
-    });
-    save(updated);
-    set({ logs: updated });
+  addLog: async (newLog) => {
+    await insertLog(newLog);
+    const logs = await fetchLogs();
+    set({ logs });
   },
 }));

@@ -10,11 +10,11 @@ import EditLog from './pages/Edit';
 import MyPage from './pages/MyPage';
 import Login from './pages/Login';
 
-import { AuthGuard } from './components/AuthGuard';
+import AuthGuard from './components/AuthGuard';
 
 const App = () => {
   useEffect(() => {
-    useLogs.getState().loadFromStorage();
+    void useLogs.getState().loadLogs();
   }, []);
 
   return (

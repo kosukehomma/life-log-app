@@ -37,3 +37,16 @@ export type Log = {
   created_at?: string;
   updated_at?: string;
 };
+
+// ======================
+// logsテーブル用の型を定義
+// ======================
+export type LogRow = {
+  id: string;
+  user_id: string;
+  date: string;
+  weight: number;
+  body_fat: number | null;
+  workout_tags: string[];
+  memo: string | null;
+};
