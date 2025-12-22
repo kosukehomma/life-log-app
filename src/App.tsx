@@ -6,7 +6,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Month from './pages/Month';
 import AddLog from './pages/AddLog';
-import EditLog from './pages/Edit';
+import EditLog from './pages/EditLog';
 import MyPage from './pages/MyPage';
 import Login from './pages/Login';
 

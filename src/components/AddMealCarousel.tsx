@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import type { MealType, Meal } from '../types';
+import { deleteMealImage } from '../lib/api/storage';
 
 const tabs: MealType[] = ['morning', 'lunch', 'dinner', 'snack'];
 const labels = {
@@ -12,10 +13,11 @@ const labels = {
 type Props = {
   meals: Record<MealType, Meal | undefined>;
   onChange: (type: MealType, meal: Meal) => void;
+  onImageSelect?: (file: File, type: MealType) => Promise<void>;
   initialType?: MealType;
 };
 
-const AddMealCarousel = ({ meals, onChange, initialType }: Props) => {
+const AddMealCarousel = ({ meals, onChange, initialType, onImageSelect }: Props) => {
   const [current, setCurrent] = useState(initialType ? tabs.indexOf(initialType) : 0);
 
   const startX = useRef<number | null>(null);
@@ -54,14 +56,11 @@ const AddMealCarousel = ({ meals, onChange, initialType }: Props) => {
     });
   };
 
-  const handleImageSelect = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      updateMeal({
-        image_url: reader.result as string,
-      });
-    };
-    reader.readAsDataURL(file);
+  const handleDeleteImage = async () => {
+    if (!meal?.image_url) return;
+
+    await deleteMealImage(meal.image_url);
+    updateMeal({ image_url: null });
   };
 
   return (
@@ -86,12 +85,23 @@ const AddMealCarousel = ({ meals, onChange, initialType }: Props) => {
 
       {/* image */}
       <label
+        htmlFor={`meal-image-${currentType}`}
         className="block relative border rounded-xl aspect-[14/9] bg-gray-100 current-pointer overflow-hidden"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         {meal?.image_url ? (
-          <img src={meal.image_url} className="w-full h-full object-cover" />
+          <div className="relative w-full h-full">
+            <img src={meal.image_url} className="w-full h-full object-cover" />
+
+            <button
+              type="button"
+              className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded"
+              onClick={() => void handleDeleteImage()}
+            >
+              削除
+            </button>
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 px-2 text-center">
             <strong>{labels[currentType]}</strong>の画像を追加
@@ -101,9 +111,11 @@ const AddMealCarousel = ({ meals, onChange, initialType }: Props) => {
           type="file"
           accept="image/*"
           className="hidden"
+          id={`meal-image-${currentType}`}
           onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) handleImageSelect(f);
+            const file = e.target.files?.[0];
+            if (!file) return;
+            void onImageSelect?.(file, currentType);
           }}
         />
       </label>

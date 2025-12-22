@@ -84,3 +84,45 @@ export const insertLog = async (log: Omit<Log, 'id'>): Promise<void> => {
 
   if (mealError) throw mealError;
 };
+
+export const updateLog = async (log: Log): Promise<void> => {
+  // logs 更新
+  const { error: logError } = await supabase
+    .from('logs')
+    .update({
+      date: log.date,
+      weight: log.weight,
+      body_fat: log.body_fat,
+      workout_tags: log.workout_tags,
+      memo: log.memo,
+    })
+    .eq('id', log.id);
+
+  if (logError) throw logError;
+
+  // meals は一旦全削除 → 再insert(シンプルで安全)
+  await supabase.from('meals').delete().eq('log_id', log.id);
+
+  const mealRows = Object.values(log.meals ?? {})
+    .filter((m): m is Meal => !!m)
+    .map((m) => ({
+      log_id: log.id,
+      type: m.type,
+      image_url: m.image_url,
+      description: m.description,
+      calories: m.calories ?? null,
+      tags: m.tags ?? null,
+    }));
+
+  if (mealRows.length > 0) {
+    const { error } = await supabase.from('meals').insert(mealRows);
+    if (error) throw error;
+  }
+};
+
+export const deleteLog = async (logId: string): Promise<void> => {
+  // meals → logs の順で削除
+  await supabase.from('meals').delete().eq('log_id', logId);
+  const { error } = await supabase.from('logs').delete().eq('id', logId);
+  if (error) throw error;
+};
