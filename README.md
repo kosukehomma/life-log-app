@@ -22,63 +22,122 @@
 - Tailwind CSS によるデザイン統一
 - TypeScript による型安全化・構造整理
 - `utils/`・`types/` モジュール分割
-- **カード編集/削除ボタン実装(CRUD 完成)**
+- カード編集/削除ボタン実装(CRUD 完成)
 - 画像は Base64 形式で localStorage に保存
-- ファイル選択時に即時プレビュー反映
 
 **ポイント**
 
 - TypeScript の型推論と型共有(`Log`, `StorageKey`, `WorkCategory`)
 - ファイルモジュール構成(`text.ts`, `storage.ts`, `image.ts`)
-- Base64 変換による画像永続化
-- Tailwind のユーティリティ設計
+- 即時プレビューを伴う画像処理
 
 ---
 
-## Step 3：（予定） React + Supabase への進化
+## Step 3：React + TypeScript（SPA 化）
 
-- Supabase データベース連携
-- ユーザー認証（ログイン機能（ログインできるアカウントを 7 つくらいに制限））
-- Cloud Storage への画像アップロード
-- React Hooks + Context による状態管理
-- API 層分離とフォームバリデーション（React Hook Form など）
+- React によるコンポーネント設計
+- react-router-dom によるページ遷移
+- Zustand による状態管理
+- フォーム・一覧・編集ページの分離
 
-**目標**
+**学習ポイント**
 
-- 本格的な SPA（single page application）化
-- クラウド DB + ストレージによる永続的データ管理
-- Next.js or Vite 構成でのモダン開発体験
+- コンポーネント分割
+- Page / Component の責務整理
+- SPA における状態管理
 
 ---
 
-## ⚙️ 技術構成（Step2 時点）
+## Step 4:Supabase(Auth/DB/RLS/Storage)で本物化
 
-| 分類           | 使用技術                                  |
-| -------------- | ----------------------------------------- |
-| 言語           | TypeScript                                |
-| UI             | Tailwind CSS                              |
-| ビルド         | Vite                                      |
-| データ保存     | localStorage（Base64 画像対応）           |
-| モジュール構成 | `src/utils/`, `src/types/`, `src/main.ts` |
+- Supabase Auth による認証（限定アカウント運用）
+- Supabase Database によるログ永続化
+- Supabase Storage による食事画像アップロード
+- RLS（Row Level Security）設定
+- API 層の分離と設計整理
+- Add / Edit 共通フォームの完成
+
+**現在の到達点**
+
+- 実用レベルの CRUD + 画像管理
+- 設計を意識した React + TypeScript 構成
+
+---
+
+## Tech Stack
+
+- Frontend: React / TypeScript / Vite
+- State Management: Zustand
+- Backend: Supabase (Auth / Database / Storage)
+- Routing: react-router-dom
+- Styling: Tailwind CSS
 
 ---
 
 ## 📸 主な機能
 
-- [x] 新規登録（体重・運動・食事・コメント）
-- [x] 一覧カード表示（7 日分 or 月指定）
-- [x] 編集機能（既存データ反映・プレビュー更新）
+- [x] ログ一覧表示（Supabase DB）
+- [x] 新規ログ作成（体重・運動・食事・コメント）
+- [x] 編集機能（既存データ反映）
 - [x] 削除機能（確認ダイアログ付き）
-- [x] 画像 Base64 保存＆即時プレビュー対応
+- [x] 食事画像アップロード（Supabase Storage）
+- [x] 画像差し替え時の旧画像削除
+- [x] Supabase Auth + RLS による限定ユーザー運用
+
+---
+
+## Architecture / Design
+
+### Form と Page の責務分離
+
+#### LogForm
+
+- 入力 UI と state 管理に専念
+- DB / Storage / Auth / Routing を一切知らない
+- 画像選択時は `onImageSelect` を通じて **URL を受け取るだけ**
+- Add / Edit 両方で共通利用される純粋なフォームコンポーネント
+
+#### AddLog
+
+- 新規作成ユースケースを担当
+- 画像アップロード・insert 処理を実装
+- LogForm に必要な callback を組み立てる
+
+#### EditLog
+
+- 編集・削除ユースケースを担当
+- 既存ログ取得
+- 画像差し替え時の旧画像削除
+- update / delete 処理を実装
+
+Add / Edit の差分は Page 側に閉じ込め、
+Form は完全に共通化しています。
+
+---
+
+### API Layer
+
+用途ごとに API を分離しています。
+
+- `fetchLogs` : ログ一覧取得
+- `fetchLogById` : ログ 1 件取得（編集用）
+- `insertLog`
+- `updateLog`
+- `deleteLog`
+
+一覧取得と単体取得を分けることで、  
+責務と型の明確化を行っています。
 
 ---
 
 ## 🧩 今後の拡張アイデア
 
-- 週単位・月単位の体重推移グラフ表示
-- PWA 対応（スマホで使える日記アプリ化）
-- Supabase Auth + Storage 連携（Step3）
-- 目標体重の管理や進捗バー表示
+- フォームバリデーション（Zod）
+- Submit 中の loading / disable 対応
+- 週・月単位の体重推移グラフ
+- UI / UX 改善
+- PWA 対応
+- 目標体重管理・進捗可視化
 
 ---
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { Log, Meal, MealType } from '../types';
+import type { Meal, MealType } from '../types';
+import type { LogFormInput } from '../types';
 import FormWorkTag from './FormWorkTag';
 import AddMealCarousel from './AddMealCarousel';
 
@@ -11,20 +12,21 @@ const emptyMeals: Record<MealType, Meal | undefined> = {
 };
 
 type Props = {
-  initialLog: Log;
-  onSubmit: (log: Log) => Promise<void>;
+  initialLog: LogFormInput;
+  onSubmit: (log: LogFormInput) => Promise<void>;
+  onImageSelect: (file: File, type: MealType) => Promise<string>;
 };
 
-const LogForm = ({ initialLog, onSubmit }: Props) => {
+const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
   const [date, setDate] = useState(initialLog.date);
-  const [weight, setWeight] = useState<number | ''>(initialLog.weight ?? '');
+  const [weight, setWeight] = useState<number | ''>(initialLog.weight);
   const [fat, setFat] = useState<number | ''>(initialLog.body_fat ?? '');
-  const [workout, setWorkout] = useState<string[]>(initialLog.workout_tags ?? []);
+  const [workout, setWorkout] = useState<string[]>(initialLog.workout_tags);
   const [meals, setMeals] = useState<Record<MealType, Meal | undefined>>({
     ...emptyMeals,
     ...initialLog.meals,
   });
-  const [memo, setMemo] = useState(initialLog.memo ?? '');
+  const [memo, setMemo] = useState(initialLog.memo);
 
   // AddMealCarousel用
   const handleMealChange = (type: MealType, meal: Meal) => {
@@ -38,7 +40,6 @@ const LogForm = ({ initialLog, onSubmit }: Props) => {
     e.preventDefault();
 
     void onSubmit({
-      ...initialLog,
       date,
       weight: Number(weight),
       body_fat: fat === '' ? null : Number(fat),
@@ -46,6 +47,18 @@ const LogForm = ({ initialLog, onSubmit }: Props) => {
       meals,
       memo,
     });
+  };
+
+  const handleImageSelect = async (file: File, type: MealType) => {
+    const imageUrl = await onImageSelect(file, type);
+
+    setMeals((prev) => ({
+      ...prev,
+      [type]: {
+        ...(prev[type] ?? { type }),
+        image_url: imageUrl,
+      },
+    }));
   };
 
   return (
@@ -97,7 +110,11 @@ const LogForm = ({ initialLog, onSubmit }: Props) => {
       {/* Meal */}
       <section id="meal-section" className="space-y-4">
         <h3 className="text-lg font-bold border-l-4 border-primary pl-2">Meal</h3>
-        <AddMealCarousel meals={meals} onChange={handleMealChange} />
+        <AddMealCarousel
+          meals={meals}
+          onChange={handleMealChange}
+          onImageSelect={handleImageSelect}
+        />
       </section>
 
       {/* コメント */}

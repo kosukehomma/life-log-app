@@ -1,47 +1,78 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useLogs } from '../store/useLogs';
+import { useEffect, useState } from 'react';
 import LogForm from '../components/LogForm';
-import type { Log } from '../types';
+import type { LogFormInput } from '../types';
+import type { MealType, Log } from '../types';
+import { supabase } from '../lib/supabase';
+import { uploadMealImage, deleteMealImage } from '../lib/api/storage';
+import { fetchLogById, updateLog, deleteLog } from '../lib/api/logs';
+
+const convertLogToForm = (log: Log): LogFormInput => ({
+  date: log.date,
+  weight: log.weight ?? 0,
+  body_fat: log.body_fat ?? null,
+  workout_tags: log.workout_tags ?? [],
+  meals: {
+    morning: log.meals?.morning,
+    lunch: log.meals?.lunch,
+    dinner: log.meals?.dinner,
+    snack: log.meals?.snack,
+  },
+  memo: log.memo ?? '',
+});
 
 const EditLog = () => {
-  const { logId } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { logs, updateLog, deleteLog } = useLogs();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [log, setLog] = useState<Log | null>(null);
 
-  const target = logs.find((l) => l.id === logId);
-  if (!target) return <p className="p-4">読み込み中...</p>;
+  useEffect(() => {
+    void supabase.auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null);
+    });
+  }, []);
 
-  const handleSubmit = (log: Log): Promise<void> => {
-    return submitAsync(log);
+  useEffect(() => {
+    if (!id) return;
+
+    void fetchLogById(id).then(setLog);
+  }, [id]);
+
+  if (!userId || !log) return null;
+
+  /* ---- Image ---- */
+  const handleImageSelect = async (file: File, type: MealType) => {
+    const currentUrl = log.meals?.[type]?.image_url ?? null;
+
+    const url = await uploadMealImage(file, userId);
+
+    if (currentUrl) {
+      await deleteMealImage(currentUrl);
+    }
+
+    return url;
   };
 
-  const submitAsync = async (log: Log) => {
-    await updateLog(log);
+  /* ---- Submit ---- */
+  const handleSubmit = async (form: LogFormInput) => {
+    await updateLog({
+      id: log.id,
+      ...form,
+      user_id: userId,
+    });
+
     void navigate('/');
   };
 
-  const handleDeleteLog = () => {
-    if (!target) return;
+  /* ---- Delete ---- */
+  const handleDelete = async () => {
+    if (!confirm('このログを削除しますか？')) return;
 
-    if (!confirm('この1日のログを削除しますか？')) return;
+    await deleteLog(log.id);
 
-    void deleteAsync();
-  };
-
-  const deleteAsync = async () => {
-    if (!target) return;
-
-    await deleteLog(target.id);
     void navigate('/');
   };
-
-  if (!logId) {
-    return <p className="p-4">URLが不正です</p>;
-  }
-
-  if (!target) {
-    return <p className="p-4">読み込み中...</p>;
-  }
 
   return (
     <div className="max-w-2xl mx-auto min-h-screen flex flex-col">
@@ -60,13 +91,17 @@ const EditLog = () => {
       </div>
 
       {/* 本体 */}
-      <LogForm initialLog={target} onSubmit={handleSubmit} />
+      <LogForm
+        initialLog={convertLogToForm(log)}
+        onSubmit={handleSubmit}
+        onImageSelect={handleImageSelect}
+      />
 
       {/* フッターボタン */}
       <div className="sticky bottom-0 bg-white border-t p-4 flex gap-4 shadow-[0_-4px_10px_rgba(0,0,0,0.08)]">
         <button
           type="button"
-          onClick={handleDeleteLog}
+          onClick={() => void handleDelete}
           className="flex-1 py-2 bg-red-500 text-white rounded-lg font-semibold"
         >
           このログを削除

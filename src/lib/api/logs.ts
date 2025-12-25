@@ -41,6 +41,45 @@ export const fetchLogs = async (): Promise<Log[]> => {
 };
 
 /**
+ * ログ1件取得(meals を join)
+ */
+export const fetchLogById = async (id: string): Promise<Log> => {
+  const { data, error } = await supabase
+    .from('logs')
+    .select(
+      `
+      id,
+      user_id,
+      date,
+      weight,
+      body_fat,
+      workout_tags,
+      memo,
+      meals (
+        id,
+        type,
+        image_url,
+        description,
+        calories,
+        tags
+      )
+      `
+    )
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return {
+    ...data,
+    meals: Object.fromEntries((data.meals ?? []).map((m: Meal) => [m.type, m])),
+  };
+};
+
+/**
  * ログを新規追加(logs + meals)
  */
 export const insertLog = async (log: Omit<Log, 'id'>): Promise<void> => {

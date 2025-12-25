@@ -50,3 +50,15 @@ export type LogRow = {
   workout_tags: string[];
   memo: string | null;
 };
+
+// ======================
+// Form専用の入力の型を定義
+// ======================
+export type LogFormInput = {
+  date: string;
+  weight: number;
+  body_fat: number | null;
+  workout_tags: string[];
+  meals: Record<MealType, Meal | undefined>;
+  memo: string;
+};

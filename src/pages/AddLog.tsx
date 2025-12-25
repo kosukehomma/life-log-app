@@ -1,40 +1,50 @@
 import { useNavigate } from 'react-router-dom';
-import { useLogs } from '../store/useLogs';
+import { useEffect, useState } from 'react';
 import LogForm from '../components/LogForm';
-import type { Log } from '../types';
+import type { LogFormInput } from '../types';
 import { supabase } from '../lib/supabase';
+import { uploadMealImage } from '../lib/api/storage';
+import { insertLog } from '../lib/api/logs';
 
-const today = new Date().toISOString().split('T')[0];
+const emptyLog: LogFormInput = {
+  date: new Date().toISOString().slice(0, 10),
+  weight: 0,
+  body_fat: null,
+  workout_tags: [],
+  meals: {
+    morning: undefined,
+    lunch: undefined,
+    dinner: undefined,
+    snack: undefined,
+  },
+  memo: '',
+};
 
 const AddLog = () => {
   const navigate = useNavigate();
-  const { addLog } = useLogs();
+  const [userId, setUserId] = useState<string | null>(null);
 
-  const initialLog: Log = {
-    id: crypto.randomUUID(),
-    user_id: '',
-    date: today,
-    weight: 0,
-    body_fat: null,
-    workout_tags: [],
-    meals: {},
-    memo: '',
+  useEffect(() => {
+    void supabase.auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null);
+    });
+  }, []);
+
+  /* ---- Image ----- */
+  const handleImageSelect = async (file: File) => {
+    if (!userId) throw new Error('not authenticated');
+
+    const url = await uploadMealImage(file, userId);
+    return url;
   };
 
-  const handleSubmit = async (log: Log) => {
-    await submitAsync(log);
-  };
+  /* ---- Submit ----- */
+  const handleSubmit = async (log: LogFormInput) => {
+    if (!userId) return;
 
-  const submitAsync = async (log: Log) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return;
-
-    await addLog({
+    await insertLog({
       ...log,
-      user_id: user.id,
+      user_id: userId,
     });
 
     void navigate('/');
@@ -55,7 +65,7 @@ const AddLog = () => {
         <div className="w-12" />
       </div>
 
-      <LogForm initialLog={initialLog} onSubmit={handleSubmit} />
+      <LogForm initialLog={emptyLog} onSubmit={handleSubmit} onImageSelect={handleImageSelect} />
 
       {/* フッターボタn */}
       <div className="sticky bottom-0 bg-white border-t p-4 flex gap-4 shadow-[0_-4px_10px_rgba(0,0,0,0.08)]">
