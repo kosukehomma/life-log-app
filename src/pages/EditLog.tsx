@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 import { uploadMealImage, deleteMealImage } from '../lib/api/storage';
 import { fetchLogById, updateLog, deleteLog } from '../lib/api/logs';
 import { useLogs } from '../store/useLogs';
+import toast from 'react-hot-toast';
 
 const convertLogToForm = (log: Log): LogFormInput => ({
   date: log.date,
@@ -28,8 +29,7 @@ const EditLog = () => {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [log, setLog] = useState<Log | null>(null);
-
-  console.log('EditLog render', id);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => {
@@ -68,23 +68,41 @@ const EditLog = () => {
 
   /* ---- Submit ---- */
   const handleSubmit = async (form: LogFormInput) => {
-    await updateLog({
-      id: log.id,
-      ...form,
-      user_id: userId,
-    });
+    setIsSubmitting(true);
+    try {
+      await updateLog({
+        id: log.id,
+        ...form,
+        user_id: userId,
+      });
 
-    await loadLogs();
-    void navigate('/');
+      await loadLogs();
+      toast.success('ログを更新しました');
+      void navigate('/');
+    } catch (error) {
+      console.error(error);
+      toast.error('保存に失敗しました');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   /* ---- Delete ---- */
   const handleDelete = async () => {
     if (!confirm('このログを削除しますか？')) return;
 
-    await deleteLog(log.id);
-
-    void navigate('/');
+    setIsSubmitting(true);
+    try {
+      await deleteLog(log.id);
+      await loadLogs();
+      toast.success('ログを削除しました');
+      void navigate('/');
+    } catch (error) {
+      console.error(error);
+      toast.error('削除に失敗しました');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -111,10 +129,15 @@ const EditLog = () => {
       />
 
       {/* フッターボタン */}
-      <div className="sticky bottom-0 bg-white border-t p-4 flex gap-4 shadow-[0_-4px_10px_rgba(0,0,0,0.08)]">
+      <div
+        className={`
+          sticky bottom-0 bg-white border-t p-4 flex gap-4 shadow-[0_-4px_10px_rgba(0,0,0,0.08)]
+          ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}
+        `}
+      >
         <button
           type="button"
-          onClick={() => void handleDelete}
+          onClick={() => void handleDelete()}
           className="flex-1 py-2 bg-red-500 text-white rounded-lg font-semibold"
         >
           このログを削除

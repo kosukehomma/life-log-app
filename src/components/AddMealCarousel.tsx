@@ -115,7 +115,6 @@ const AddMealCarousel = ({ meals, onChange, initialType, onImageSelect }: Props)
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (!file) return;
-            console.log('image selected', file, currentType);
             void onImageSelect?.(file, currentType);
           }}
         />

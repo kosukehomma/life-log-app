@@ -3,6 +3,7 @@ import { useLogs } from '../store/useLogs';
 import MealCarousel from './MealCarousel';
 import type { Log } from '../types';
 import { getWorkoutStyle } from '../utils/workoutCategory';
+import toast from 'react-hot-toast';
 
 type Props = {
   log: Log;
@@ -77,6 +78,18 @@ const DailyCard = ({ log }: Props) => {
       ? parseFloat((log.weight / (heightM * heightM)).toFixed(1))
       : null;
   const bmiLabel = bmi !== null ? getBmiLabel(bmi) : '--';
+
+  const handleDelete = async () => {
+    if (!confirm('この1日のログを削除しますか？')) return;
+
+    try {
+      await deleteLog(log.id);
+      toast.success('ログを削除しました');
+    } catch (error) {
+      console.error(error);
+      toast.error('削除に失敗しました');
+    }
+  };
 
   return (
     <div className="w-full max-w-full sm:max-w-[48%] md:max-w-[280px] bg-white rounded-2xl border border-b border-slate-300 shadow-lg p-4 flex flex-col gap-4">
@@ -165,10 +178,7 @@ const DailyCard = ({ log }: Props) => {
         </button>
         <button
           type="button"
-          onClick={() => {
-            if (!confirm('この1日のログを削除しますか？')) return;
-            deleteLog(log.id);
-          }}
+          onClick={() => void handleDelete()}
           className="px-3 py-1 text-xs rounded-md bg-red-500 text-white font-medium"
         >
           削除

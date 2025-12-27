@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { useLogs } from './store/useLogs';
 import Layout from './components/Layout';
 
@@ -19,6 +20,7 @@ const App = () => {
 
   return (
     <Layout>
+      <Toaster position="top-center" reverseOrder={false} />
       <Routes>
         {/* ログインページはガードなし */}
         <Route path="/login" element={<Login />} />

@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { uploadMealImage } from '../lib/api/storage';
 import { insertLog } from '../lib/api/logs';
 import { useLogs } from '../store/useLogs';
+import toast from 'react-hot-toast';
 
 const emptyLog: LogFormInput = {
   date: new Date().toISOString().slice(0, 10),
@@ -25,6 +26,7 @@ const AddLog = () => {
   const { loadLogs } = useLogs();
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => {
@@ -44,13 +46,23 @@ const AddLog = () => {
   const handleSubmit = async (log: LogFormInput) => {
     if (!userId) return;
 
-    await insertLog({
-      ...log,
-      user_id: userId,
-    });
+    setIsSubmitting(true);
+    try {
+      await insertLog({
+        ...log,
+        user_id: userId,
+      });
 
-    await loadLogs();
-    void navigate('/');
+      await loadLogs();
+
+      toast.success('ログを追加しました');
+      void navigate('/');
+    } catch (error) {
+      console.error(error);
+      toast.error('保存に失敗しました');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -75,9 +87,12 @@ const AddLog = () => {
         <button
           type="submit"
           form="log-form"
-          className="flex-1 py-2 bg-primary text-white rounded-lg font-semibold"
+          disabled={isSubmitting}
+          className={`flex-1 py-2 rounded-lg font-semibold
+            ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary text-white'}
+          `}
         >
-          保存
+          {isSubmitting ? '保存中...' : '保存'}
         </button>
       </div>
     </div>

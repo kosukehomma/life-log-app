@@ -17,11 +17,12 @@ type Props = {
   initialLog: LogFormInput;
   onSubmit: (log: LogFormInput) => Promise<void>;
   onImageSelect: (file: File, type: MealType) => Promise<string>;
+  isSubmitting?: boolean;
 };
 
 type FieldErrors = Partial<Record<keyof LogFormInput, string[]>>;
 
-const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
+const LogForm = ({ initialLog, onSubmit, onImageSelect, isSubmitting = false }: Props) => {
   const [date, setDate] = useState(initialLog.date);
   const [weight, setWeight] = useState<number | ''>(initialLog.weight);
   const [fat, setFat] = useState<number | ''>(initialLog.body_fat ?? '');
@@ -67,10 +68,14 @@ const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
     }
 
     setErrors({});
+    document.getElementById('log-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
     void onSubmit(result.data);
   };
 
   const handleImageSelect = async (file: File, type: MealType) => {
+    if (isSubmitting) return;
+
     const imageUrl = await onImageSelect(file, type);
 
     setMeals((prev) => ({
@@ -83,7 +88,13 @@ const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
   };
 
   return (
-    <form id="log-form" onSubmit={handleSubmit} className="flex-1 p-4 space-y-8">
+    <form
+      id="log-form"
+      onSubmit={handleSubmit}
+      className={`flex-1 p-4 space-y-8
+        ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}
+      `}
+    >
       {/* 基本情報 */}
       <section className="space-y-4">
         <h3 className="text-lg font-bold border-l-4 border-primary pl-2">基本情報</h3>
