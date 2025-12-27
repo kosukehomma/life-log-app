@@ -49,7 +49,7 @@ const App = () => {
           }
         />
         <Route
-          path="/edit/:logId"
+          path="/edit/:id"
           element={
             <AuthGuard>
               <EditLog />

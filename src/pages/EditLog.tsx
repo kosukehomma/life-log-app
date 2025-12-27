@@ -6,6 +6,7 @@ import type { MealType, Log } from '../types';
 import { supabase } from '../lib/supabase';
 import { uploadMealImage, deleteMealImage } from '../lib/api/storage';
 import { fetchLogById, updateLog, deleteLog } from '../lib/api/logs';
+import { useLogs } from '../store/useLogs';
 
 const convertLogToForm = (log: Log): LogFormInput => ({
   date: log.date,
@@ -22,10 +23,13 @@ const convertLogToForm = (log: Log): LogFormInput => ({
 });
 
 const EditLog = () => {
+  const { loadLogs } = useLogs();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [log, setLog] = useState<Log | null>(null);
+
+  console.log('EditLog render', id);
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => {
@@ -34,12 +38,20 @@ const EditLog = () => {
   }, []);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) {
+      return;
+    }
 
-    void fetchLogById(id).then(setLog);
+    fetchLogById(id)
+      .then((data) => {
+        setLog(data);
+      })
+      .catch((e) => {
+        console.error('EditLog fetch error', e);
+      });
   }, [id]);
 
-  if (!userId || !log) return null;
+  if (!userId || !log) return <p className="p-4">Loading...</p>;
 
   /* ---- Image ---- */
   const handleImageSelect = async (file: File, type: MealType) => {
@@ -62,6 +74,7 @@ const EditLog = () => {
       user_id: userId,
     });
 
+    await loadLogs();
     void navigate('/');
   };
 

@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { logSchema } from '../schemas/logSchema';
 import type { Meal, MealType } from '../types';
 import type { LogFormInput } from '../types';
 import FormWorkTag from './FormWorkTag';
 import AddMealCarousel from './AddMealCarousel';
+import { extractFieldErrors } from '../utils/zod';
 
 const emptyMeals: Record<MealType, Meal | undefined> = {
   morning: undefined,
@@ -17,6 +19,8 @@ type Props = {
   onImageSelect: (file: File, type: MealType) => Promise<string>;
 };
 
+type FieldErrors = Partial<Record<keyof LogFormInput, string[]>>;
+
 const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
   const [date, setDate] = useState(initialLog.date);
   const [weight, setWeight] = useState<number | ''>(initialLog.weight);
@@ -27,6 +31,7 @@ const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
     ...initialLog.meals,
   });
   const [memo, setMemo] = useState(initialLog.memo);
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   // AddMealCarousel用
   const handleMealChange = (type: MealType, meal: Meal) => {
@@ -39,14 +44,30 @@ const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    void onSubmit({
+    const formData: LogFormInput = {
       date,
       weight: Number(weight),
       body_fat: fat === '' ? null : Number(fat),
       workout_tags: workout,
       meals,
       memo,
-    });
+    };
+
+    const result = logSchema.safeParse(formData);
+
+    if (!result.success) {
+      console.log('validation error', result.error);
+      setErrors(extractFieldErrors(result.error));
+
+      document
+        .querySelector('[data-error="true"]')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      return;
+    }
+
+    setErrors({});
+    void onSubmit(result.data);
   };
 
   const handleImageSelect = async (file: File, type: MealType) => {
@@ -74,8 +95,12 @@ const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="border p-2 rounded-md text-sm"
-              required
             />
+            {errors.date?.[0] && (
+              <p className="text-red-600 text-xs" data-error="true">
+                {errors.date[0]}
+              </p>
+            )}
           </label>
 
           <label className="flex flex-col flex-1 text-sm font-semibold gap-1">
@@ -85,8 +110,8 @@ const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
               value={weight}
               onChange={(e) => setWeight(e.target.value === '' ? '' : Number(e.target.value))}
               className="border p-2 rounded-md text-sm"
-              required
             />
+            {errors.weight?.[0] && <p className="text-red-600 text-xs">{errors.weight[0]}</p>}
           </label>
 
           <label className="flex flex-col flex-1 text-sm font-semibold gap-1">
@@ -97,6 +122,7 @@ const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
               onChange={(e) => setFat(e.target.value === '' ? '' : Number(e.target.value))}
               className="border p-2 rounded-md text-sm"
             />
+            {errors.body_fat?.[0] && <p className="text-red-600 text-xs">{errors.body_fat[0]}</p>}
           </label>
         </div>
       </section>
@@ -132,6 +158,7 @@ const LogForm = ({ initialLog, onSubmit, onImageSelect }: Props) => {
             {memo.length} / 128
           </span>
         </div>
+        {errors.memo?.[0] && <p className="text-red-600 text-xs">{errors.memo[0]}</p>}
       </section>
     </form>
   );

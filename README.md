@@ -1,19 +1,26 @@
 # Life Log App
 
-日々の**体重・運動・食事（生活ログ）** を記録する学習用のローカル web アプリです。
-フロントエンドの基礎から、型安全・モジュール化・CRUD 実装までを段階的に習得することを目的としています。
+日々の**体重・運動・食事（画像付き）** を記録する個人向けライフログ web アプリです。
+フロントエンド開発の学習を目的に、**設計・型安全・責務分離・CRUD 実装**を重視して段階的に開発しています。
+
+---
+
+## 📌 プロジェクトの目的
+
+- React / TypeScript を用いた SPA 開発の実践
+- UI / Form / State / API / DB の責務分離
+- 実務を意識したフォーム設計・バリデーション設計
+- Supabase を用いた Auth / Database / Storage の統合
+
+---
 
 ## Step 1：HTML + CSS + JavaScript(基礎構築)
 
 - HTML+CSS+JS で画面を構成
 - `localStorage` にログデータを保存
-- 食事画像・体重・コメント・運動内容を一覧カードで表示
-- デザインはプレーン CSS ベース
-
-**ポイント**
-
 - DOM 操作・イベント処理の基礎
-- localStorage による簡易データ永続化
+- ログ一覧・編集・削除の実装
+- デザインはプレーン CSS ベース
 
 ---
 
@@ -25,12 +32,6 @@
 - カード編集/削除ボタン実装(CRUD 完成)
 - 画像は Base64 形式で localStorage に保存
 
-**ポイント**
-
-- TypeScript の型推論と型共有(`Log`, `StorageKey`, `WorkCategory`)
-- ファイルモジュール構成(`text.ts`, `storage.ts`, `image.ts`)
-- 即時プレビューを伴う画像処理
-
 ---
 
 ## Step 3：React + TypeScript（SPA 化）
@@ -38,13 +39,7 @@
 - React によるコンポーネント設計
 - react-router-dom によるページ遷移
 - Zustand による状態管理
-- フォーム・一覧・編集ページの分離
-
-**学習ポイント**
-
-- コンポーネント分割
 - Page / Component の責務整理
-- SPA における状態管理
 
 ---
 
@@ -56,11 +51,7 @@
 - RLS（Row Level Security）設定
 - API 層の分離と設計整理
 - Add / Edit 共通フォームの完成
-
-**現在の到達点**
-
-- 実用レベルの CRUD + 画像管理
-- 設計を意識した React + TypeScript 構成
+- バリデーション導入による堅牢化
 
 ---
 
@@ -71,6 +62,7 @@
 - Backend: Supabase (Auth / Database / Storage)
 - Routing: react-router-dom
 - Styling: Tailwind CSS
+- Validation: Zod v4
 
 ---
 
@@ -82,6 +74,7 @@
 - [x] 削除機能（確認ダイアログ付き）
 - [x] 食事画像アップロード（Supabase Storage）
 - [x] 画像差し替え時の旧画像削除
+- [x] 入力バリデーション（Zod）
 - [x] Supabase Auth + RLS による限定ユーザー運用
 
 ---
@@ -94,50 +87,46 @@
 
 - 入力 UI と state 管理に専念
 - DB / Storage / Auth / Routing を一切知らない
-- 画像選択時は `onImageSelect` を通じて **URL を受け取るだけ**
+- Zod による入力バリデーションを内包
 - Add / Edit 両方で共通利用される純粋なフォームコンポーネント
 
 #### AddLog
 
 - 新規作成ユースケースを担当
-- 画像アップロード・insert 処理を実装
-- LogForm に必要な callback を組み立てる
+- DB insert 後、Zustand の state を再同期
 
 #### EditLog
 
 - 編集・削除ユースケースを担当
-- 既存ログ取得
-- 画像差し替え時の旧画像削除
-- update / delete 処理を実装
-
-Add / Edit の差分は Page 側に閉じ込め、
-Form は完全に共通化しています。
+- DB update / delete 後、Zustand の state を再同期
 
 ---
 
-### API Layer
+### State Management（Zustand）
 
-用途ごとに API を分離しています。
+- 一覧データは `useLogs` ストアで一元管理
+- API 層は純粋な通信処理に限定
+- 追加・編集・削除後は `loadLogs()` により再同期
+- 画面遷移後も即時反映される構成
 
-- `fetchLogs` : ログ一覧取得
-- `fetchLogById` : ログ 1 件取得（編集用）
-- `insertLog`
-- `updateLog`
-- `deleteLog`
+---
 
-一覧取得と単体取得を分けることで、  
-責務と型の明確化を行っています。
+### Validation 設計
+
+- Zod v4 を使用
+- `safeParse` による submit 前検証
+- `treeifyError` を util 化し、フォーム用エラー形式へ変換
+- フィールド単位でエラーメッセージ表示
 
 ---
 
 ## 🧩 今後の拡張アイデア
 
-- フォームバリデーション（Zod）
-- Submit 中の loading / disable 対応
+- submit 中の loading / disable 制御
+- 成功・失敗のフィードバック（toast）
 - 週・月単位の体重推移グラフ
 - UI / UX 改善
 - PWA 対応
-- 目標体重管理・進捗可視化
 
 ---
 

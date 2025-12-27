@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import type { Log } from '../types';
-import { insertLog, fetchLogs, updateLog, deleteLog } from '../lib/api/logs';
+import {
+  insertLog,
+  fetchLogs,
+  updateLog as apiUpdateLog,
+  deleteLog as apiDeleteLog,
+} from '../lib/api/logs';
 
 export type LogsState = {
   logs: Log[];
@@ -32,13 +37,13 @@ export const useLogs = create<LogsState>((set) => ({
   },
 
   updateLog: async (log) => {
-    await updateLog(log);
+    await apiUpdateLog(log);
     const logs = await fetchLogs();
     set({ logs });
   },
 
   deleteLog: async (logId) => {
-    await deleteLog(logId);
+    await apiDeleteLog(logId);
     const logs = await fetchLogs();
     set({ logs });
   },

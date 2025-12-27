@@ -5,6 +5,7 @@ import type { LogFormInput } from '../types';
 import { supabase } from '../lib/supabase';
 import { uploadMealImage } from '../lib/api/storage';
 import { insertLog } from '../lib/api/logs';
+import { useLogs } from '../store/useLogs';
 
 const emptyLog: LogFormInput = {
   date: new Date().toISOString().slice(0, 10),
@@ -21,6 +22,7 @@ const emptyLog: LogFormInput = {
 };
 
 const AddLog = () => {
+  const { loadLogs } = useLogs();
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -47,6 +49,7 @@ const AddLog = () => {
       user_id: userId,
     });
 
+    await loadLogs();
     void navigate('/');
   };
 
