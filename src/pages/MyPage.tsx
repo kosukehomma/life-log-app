@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 const MyPage = () => {
@@ -7,6 +9,8 @@ const MyPage = () => {
   const [startWeight, setStartWeight] = useState('');
   const [targetWeight, setTargetWeight] = useState('');
   const [saved, setSaved] = useState(false);
+  const navigate = useNavigate();
+  const logout = useAuthStore((s) => s.logout);
 
   useEffect(() => {
     setNickname(localStorage.getItem('mypage_nickname') || '');
@@ -24,6 +28,17 @@ const MyPage = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success('ログアウトしました');
+      void navigate('/login');
+    } catch (error) {
+      console.error(error);
+      toast.error('ログアウトに失敗しました');
+    }
+  }
 
   return (
     <div className="p-6 md:ml-52 pt-20 md:pt-6">
@@ -95,7 +110,7 @@ const MyPage = () => {
 
         {/* ログアウト */}
         <button
-          onClick={void useAuthStore.getState().logout}
+          onClick={() => void handleLogout()}
           className="w-full text-white py-2 rounded font-bold bg-red-500 mt-3"
         >
           ログアウト

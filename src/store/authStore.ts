@@ -12,13 +12,30 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: undefined,
 
   fetchUser: async () => {
-    const { data } = await supabase.auth.getUser();
-    set({ user: data.user ?? null });
-    console.log(data.user?.id);
+    const { data: sessionData } = await supabase.auth.getSession();
+
+    if (!sessionData.session) {
+      set({ user: null });
+      return;
+    }
+
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error(error);
+      set({ user: null });
+      return;
+    }
+
+    set({ user: data.user });
   },
 
   logout: async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw error;
+    }
+
     set({ user: null });
   },
 }));

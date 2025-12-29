@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useLogs } from './store/useLogs';
+
 import Layout from './components/Layout';
+import AuthGuard from './components/AuthGuard';
 
 import Home from './pages/Home';
 import Month from './pages/Month';
@@ -11,63 +13,34 @@ import EditLog from './pages/EditLog';
 import MyPage from './pages/MyPage';
 import Login from './pages/Login';
 
-import AuthGuard from './components/AuthGuard';
-
 const App = () => {
   useEffect(() => {
     void useLogs.getState().loadLogs();
   }, []);
 
   return (
-    <Layout>
+    <>
       <Toaster position="top-center" reverseOrder={false} />
       <Routes>
-        {/* ログインページはガードなし */}
+        {/* ログイン（Layoutなし） */}
         <Route path="/login" element={<Login />} />
 
-        {/* 以下、AuthGuard を適用 */}
+        {/* 認証必須 + Layoutあり */}
         <Route
-          path="/"
           element={
             <AuthGuard>
-              <Home />
+              <Layout />
             </AuthGuard>
           }
-        />
-        <Route
-          path="/month/:year/:month"
-          element={
-            <AuthGuard>
-              <Month />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/add"
-          element={
-            <AuthGuard>
-              <AddLog />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/edit/:id"
-          element={
-            <AuthGuard>
-              <EditLog />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/mypage"
-          element={
-            <AuthGuard>
-              <MyPage />
-            </AuthGuard>
-          }
-        />
+        >
+          <Route path="/" element={<Home />} />
+          <Route path="/month/:year/:month" element={<Month />} />
+          <Route path="/add" element={<AddLog />} />
+          <Route path="/edit/:id" element={<EditLog />} />
+          <Route path="/mypage" element={<MyPage />} />
+        </Route>
       </Routes>
-    </Layout>
+    </>
   );
 };
 

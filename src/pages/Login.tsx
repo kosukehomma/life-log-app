@@ -1,49 +1,114 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
+import { ALLOWED_EMAILS } from '../constants/allowedUsers';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const fetchUser = useAuthStore((s) => s.fetchUser);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = async () => {
-    setError('');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    if (!email || !password) {
+      toast.error('メールアドレスとパスワードを入力してください');
+      return;
+    }
 
-    if (error) {
-      setError(error.message);
-    } else {
-      window.location.href = '/';
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // user を store に反映
+      await fetchUser();
+      const user = useAuthStore.getState().user;
+
+      // 利用不可ユーザー
+      if (!user || !ALLOWED_EMAILS.includes(user.email ?? '')) {
+        await supabase.auth.signOut();
+        toast.error('このアカウントは利用できません');
+        return;
+      }
+
+      // 正式ログイン
+      toast.success('ログインできました');
+      void navigate('/');
+    } catch (error) {
+      console.error(error);
+      toast.error('ログインに失敗しました');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Life Log ログイン</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <form
+        onSubmit={(e) => void handleLogin(e)}
+        className="w-full max-w-sm bg-white rounded-2xl shadow-lg pb-6 space-y-6"
+      >
+        <div className="text-center space-y-1">
+          <h1 className="mb-4 block px-6 py-2 text-2xl font-bold text-white bg-primary rounded-t-lg shadow">
+            Life Log
+          </h1>
+          <p className="mt-3 text-sm text-gray-600">
+            日々の体重・運動・食事を記録する
+            <br />
+            個人用ライフログアプリ
+          </p>
+        </div>
 
-      <input
-        type="text"
-        placeholder="メールアドレス / ID"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <br />
-      <br />
+        <div className="space-y-4 px-4">
+          <label className="block text-sm font-semibold">
+            メールアドレス / ID
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full border rounded-md p-2 text-sm"
+              disabled={isSubmitting}
+            />
+          </label>
 
-      <input
-        type="password"
-        placeholder="パスワード"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+          <label className="block text-sm font-semibold">
+            パスワード
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full border rounded-md p-2 text-sm"
+              disabled={isSubmitting}
+            />
+          </label>
+        </div>
 
-      <button onClick={() => void handleLogin()}>ログイン</button>
+        <div className="space-y-4 px-4">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`
+              w-full py-2 rounded-lg font-semibold text-white
+              ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:opacity-90'}
+            `}
+          >
+            {isSubmitting ? 'ログイン中...' : 'ログイン'}
+          </button>
+        </div>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+        <p className="text-xs text-gray-400 text-center">※ 利用は限定ユーザーのみ</p>
+      </form>
     </div>
   );
 };
