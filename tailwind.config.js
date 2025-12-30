@@ -16,10 +16,15 @@ export default {
           '0%': { opacity: 0, transform: 'translate(-50%, 20px)' },
           '100%': { opacity: 1, transform: 'translate(-50%, 0px)' },
         },
+        fadeInUp: {
+          '0%': { opacity: 0, transform: 'translateY(8px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
       },
       animation: {
         'slide-down': 'slide-down 0.25s ease-out',
         'fade-in': 'fade-in 0.3s ease-out',
+        fadeInUp: 'fadeInUp 0.4s ease-out',
       },
     },
   },

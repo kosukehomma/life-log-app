@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { ALLOWED_EMAILS } from '../constants/allowedUsers';
+import { GUEST_PROFILES } from '../constants/guestProfiles';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const Login = () => {
     setIsSubmitting(true);
 
     try {
+      // ① ログイン
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -31,19 +33,39 @@ const Login = () => {
 
       if (error) throw error;
 
-      // user を store に反映
+      // ② user を store に反映
       await fetchUser();
       const user = useAuthStore.getState().user;
 
-      // 利用不可ユーザー
+      // ③ 利用不可ユーザー
       if (!user || !ALLOWED_EMAILS.includes(user.email ?? '')) {
         await supabase.auth.signOut();
         toast.error('このアカウントは利用できません');
         return;
       }
 
-      // 正式ログイン
-      toast.success('ログインできました');
+      // ④ profiles を upsert（初回ログイン対策）
+      const isAdmin = user.email === ALLOWED_EMAILS[0];
+      const guestProfile = GUEST_PROFILES[user.email ?? ''];
+
+      const baseProfile = isAdmin
+        ? { id: user.id }
+        : {
+            id: user.id,
+            ...(guestProfile ?? { nickname: 'ゲストユーザー' }),
+          };
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert(baseProfile, { ignoreDuplicates: true });
+
+      if (profileError) {
+        console.error(profileError);
+        toast.error('プロフィール初期化に失敗しました（後で再施行されます)');
+      }
+
+      // ⑤ 正式ログイン
+      toast.success('ログインしました');
       void navigate('/');
     } catch (error) {
       console.error(error);
@@ -54,14 +76,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
       <form
         onSubmit={(e) => void handleLogin(e)}
-        className="w-full max-w-sm bg-white rounded-2xl shadow-lg pb-6 space-y-6"
+        className="w-full max-w-sm bg-white rounded-2xl shadow-lg pb-6 space-y-6 animate-fadeInUp"
       >
         <div className="text-center space-y-1">
-          <h1 className="mb-4 block px-6 py-2 text-2xl font-bold text-white bg-primary rounded-t-lg shadow">
-            Life Log
+          <h1 className="mb-4 px-6 py-3 text-2xl font-bold text-white bg-primary rounded-t-2xl shadow tracking-wide">
+            LIFE LOG
           </h1>
           <p className="mt-3 text-sm text-gray-600">
             日々の体重・運動・食事を記録する
@@ -77,7 +99,11 @@ const Login = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full border rounded-md p-2 text-sm"
+              className="
+                mt-1 w-full border rounded-md p-2 text-sm
+                focus:outline-none focus:ring-2 focus:ring-primary/40
+                transition
+              "
               disabled={isSubmitting}
             />
           </label>
@@ -88,7 +114,11 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full border rounded-md p-2 text-sm"
+              className="
+                mt-1 w-full border rounded-md p-2 text-sm
+                focus:outline-none focus:ring-2 focus:ring-primary/40
+                transition
+              "
               disabled={isSubmitting}
             />
           </label>
@@ -100,10 +130,21 @@ const Login = () => {
             disabled={isSubmitting}
             className={`
               w-full py-2 rounded-lg font-semibold text-white
-              ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:opacity-90'}
+              ${
+                isSubmitting
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-primary hover:opacity-90 hover:shadow-md'
+              }
             `}
           >
-            {isSubmitting ? 'ログイン中...' : 'ログイン'}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />
+                ログイン中...
+              </span>
+            ) : (
+              'ログイン'
+            )}
           </button>
         </div>
 

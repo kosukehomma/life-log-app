@@ -1,33 +1,73 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import type { Profile } from '../types';
 
 const MyPage = () => {
+  const user = useAuthStore((s) => s.user);
+
   const [nickname, setNickname] = useState('');
   const [height, setHeight] = useState('');
   const [startWeight, setStartWeight] = useState('');
   const [targetWeight, setTargetWeight] = useState('');
-  const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
   const logout = useAuthStore((s) => s.logout);
 
+  // ① profiles 読み込み
   useEffect(() => {
-    setNickname(localStorage.getItem('mypage_nickname') || '');
-    setHeight(localStorage.getItem('mypage_height') || '');
-    setStartWeight(localStorage.getItem('mypage_startWeight') || '');
-    setTargetWeight(localStorage.getItem('mypage_targetWeight') || '');
-  }, []);
+    if (!user) return;
 
-  const handleSave = () => {
-    localStorage.setItem('mypage_nickname', nickname);
-    localStorage.setItem('mypage_height', height);
-    localStorage.setItem('mypage_startWeight', startWeight);
-    localStorage.setItem('mypage_targetWeight', targetWeight);
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, nickname, height, start_weight, target_weight')
+        .eq('id', user.id)
+        .single<Profile>();
 
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+      if (error) {
+        console.error(error);
+        toast.error('プロフィールの取得に失敗しました');
+        return;
+      }
+
+      setNickname(data.nickname ?? '');
+      setHeight(data.height?.toString() ?? '');
+      setStartWeight(data.start_weight?.toString() ?? '');
+      setTargetWeight(data.target_weight?.toString() ?? '');
+    };
+
+    void fetchProfile();
+  }, [user]);
+
+  // ② 保存処理
+  const handleSave = async () => {
+    if (!user) return;
+
+    setIsSaving(true);
+
+    const { error } = await supabase.from('profiles').upsert({
+      id: user.id,
+      nickname: nickname || null,
+      height: height ? Number(height) : null,
+      start_weight: startWeight ? Number(startWeight) : null,
+      target_weight: targetWeight ? Number(targetWeight) : null,
+    });
+    if (error) {
+      console.error(error);
+      toast.error('保存に失敗しました');
+    } else {
+      toast.success('プロフィールを保存しました');
+    }
+
+    setIsSaving(false);
   };
+
+  if (!user) {
+    return <p className="p-6">Loading...</p>;
+  }
 
   const handleLogout = async () => {
     try {
@@ -38,7 +78,7 @@ const MyPage = () => {
       console.error(error);
       toast.error('ログアウトに失敗しました');
     }
-  }
+  };
 
   return (
     <div className="p-6 md:ml-52 pt-20 md:pt-6">
@@ -91,22 +131,15 @@ const MyPage = () => {
 
         {/* 保存ボタン */}
         <button
-          onClick={handleSave}
+          onClick={() => void handleSave()}
+          disabled={isSaving}
           className={`
             w-full text-white py-2 rounded font-bold transition
-            ${saved ? 'bg-green-600' : 'bg-primary hover:opacity-90'}
+            ${isSaving ? 'bg-green-600' : 'bg-primary hover:opacity-90'}
           `}
-          disabled={saved}
         >
-          {saved ? '保村済み✔︎' : '保存'}
+          {isSaving ? '保村中...' : '保存'}
         </button>
-
-        {/* Toast */}
-        {saved && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-primary/70 text-white py-2 px-4 rounded shadow-lg backdrop-blur-sm animate-fade-in z-[999]">
-            保存しました！✔︎
-          </div>
-        )}
 
         {/* ログアウト */}
         <button

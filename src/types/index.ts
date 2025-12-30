@@ -62,3 +62,16 @@ export type LogFormInput = {
   meals: Record<MealType, Meal | undefined>;
   memo: string;
 };
+
+// ======================
+// Profile（ユーザープロフィール）
+// ======================
+export type Profile = {
+  id: string; // auth.users.idと同じ
+  nickname: string | null;
+  height: number | null;
+  start_weight: number | null;
+  target_weight: number | null;
+  created_at?: string;
+  updated_at?: string;
+};

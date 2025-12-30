@@ -1,7 +1,11 @@
 # Life Log App
 
-日々の**体重・運動・食事（画像付き）** を記録する個人向けライフログ web アプリです。
-フロントエンド開発の学習を目的に、**設計・型安全・責務分離・CRUD 実装**を重視して段階的に開発しています。
+**Life Log App** は、  
+体重・運動・食事（画像）を日次で記録できる  
+**React + TypeScript + Supabase 製のライフログ SPA**です。
+
+フロントエンド開発の学習を目的としつつ、  
+**実運用を意識した設計・型安全・責務分離・CRUD 実装**を重視して段階的に開発しています。
 
 ---
 
@@ -14,7 +18,7 @@
 
 ---
 
-## Step 1：HTML + CSS + JavaScript(基礎構築)
+## Step 1：HTML + CSS + JavaScript（基礎構築）
 
 - HTML+CSS+JS で画面を構成
 - `localStorage` にログデータを保存
@@ -43,7 +47,7 @@
 
 ---
 
-## Step 4:Supabase(Auth/DB/RLS/Storage)で本物化
+## Step 4：Supabase（Auth / DB / RLS / Storage）
 
 - Supabase Auth による認証（限定アカウント運用）
 - Supabase Database によるログ永続化
@@ -58,9 +62,13 @@
 
 ## Tech Stack
 
-- Frontend: React / TypeScript / Vite
+- Frontend: React + TypeScript + Vite
+  - 型安全と高速な開発体験を重視
 - State Management: Zustand
-- Backend: Supabase (Auth / Database / Storage)
+  - グローバル状態をシンプルに管理
+- Backend: Supabase
+  - Auth / Database / Storage を統合的に利用
+  - Row Level Security によりユーザー単位でデータを分離
 - Routing: react-router-dom
 - Styling: Tailwind CSS
 - Validation: Zod v4
@@ -82,7 +90,10 @@
 
 ## Architecture / Design
 
-### Form と Page の責務分離
+- Form と Page の責務分離（LogForm / AddLog / EditLog）
+- API 層分離（lib/api）
+- Zustand によるログ状態管理
+- Supabase RLS による認可制御
 
 #### LogForm
 
@@ -121,15 +132,24 @@
 
 ---
 
-### 認証について
+### Authentication / User Roles
 
-本アプリは Supabase Auth を利用していますが、
-利用可能なユーザーは事前に許可されたメールアドレスのみです。
+本アプリでは Supabase Auth を利用し、以下のユーザー区分を設けています。
 
-- 管理者用アカウント
-- デモ用ゲストアカウント（最大 5 件）
+### 管理者アカウント
 
-未許可ユーザーはログイン後ただちにサインアウトされます。
+- プロフィール（身長・目標体重など）の編集が可能
+- 全ログの作成・編集・削除が可能
+
+### ゲストアカウント（体験用）
+
+- ログの作成・編集・削除が可能
+- プロフィールは read-only
+- 初回ログイン時にサンプルプロフィールが自動設定されます
+
+ゲストアカウントはアプリの利用感を確認するための体験用として用意しています。
+この構成により、管理者は実運用に近い利用が可能であり、
+ゲストユーザーはアプリの操作感を安全に体験できる設計としています。
 
 ---
 
@@ -140,6 +160,21 @@
 - PWA 対応
 
 ---
+
+## 📷 Screenshots
+
+### Login
+
+<img src="./images/login.png" width="380" />
+
+### Home
+
+日次ログをカード形式で一覧表示。編集・削除は即時反映。
+<img src="./images/home.png" width="800" />
+
+### My Page
+
+<img src="./images/mypage.png" width="380" />
 
 ## 🧾 License
 
